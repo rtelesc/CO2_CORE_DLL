@@ -5,7 +5,7 @@
 // * ************************************************************
 // *                      INFORMATIONS
 // * ************************************************************
-// * Microsoft Random class for the library. (Ex. Memory management)
+// * Microsoft C Random class for the library.
 // * msrandom.cs
 // * 
 // * --

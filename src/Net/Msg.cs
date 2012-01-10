@@ -25,7 +25,7 @@ using System;
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace CO2_CORE_DLL.Network
+namespace CO2_CORE_DLL.Net
 {
     public unsafe class Msg
     {
