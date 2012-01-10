@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{968B7257-3D98-46AE-9C0D-A4990C1D5873}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CO2_CORE_DLL</RootNamespace>
+    <AssemblyName>CO2_CORE_DLL</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <StartupObject>
+    </StartupObject>
+    <TargetFrameworkSubset>
+    </TargetFrameworkSubset>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\bin\win32\debug %28x86%29\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>..\bin\win32\release %28x86%29\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\bin\win32\debug %28x64%29\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>false</Optimize>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <OutputPath>..\bin\win32\release %28x64%29\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Base\Ini.cs" />
+    <Compile Include="Base\Kernel.cs" />
+    <Compile Include="Base\MSRandom.cs" />
+    <Compile Include="Base\Queue.cs" />
+    <Content Include="Constants.txt" />
+    <Compile Include="File\Ini\AutoAllot.cs" />
+    <Compile Include="File\Ini\LevelExp.cs" />
+    <Compile Include="File\Ini\MagicType.cs" />
+    <Compile Include="File\TPD.cs" />
+    <Compile Include="File\TPI.cs" />
+    <Compile Include="Import\zlib\Adler32.cs" />
+    <Compile Include="Import\zlib\Deflate.cs" />
+    <Compile Include="Import\zlib\InfBlocks.cs" />
+    <Compile Include="Import\zlib\InfCodes.cs" />
+    <Compile Include="Import\zlib\Inflate.cs" />
+    <Compile Include="Import\zlib\InfTree.cs" />
+    <Compile Include="Import\zlib\StaticTree.cs" />
+    <Compile Include="Import\zlib\SupportClass.cs" />
+    <Compile Include="Import\zlib\Tree.cs" />
+    <Compile Include="Import\zlib\ZInputStream.cs" />
+    <Compile Include="Import\zlib\Zlib.cs" />
+    <Compile Include="Import\zlib\ZOutputStream.cs" />
+    <Compile Include="Import\zlib\ZStream.cs" />
+    <Compile Include="Import\zlib\ZStreamException.cs" />
+    <Compile Include="Network\Msg.cs" />
+    <Compile Include="Network\Sockets\ClientSocket.cs" />
+    <Compile Include="Network\Sockets\Event.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="File\WDF.cs" />
+    <Compile Include="Security\COCAC.cs" />
+    <Compile Include="Security\COFAC.cs" />
+    <Compile Include="Security\CORC5.cs" />
+    <Compile Include="Security\COSAC.cs" />
+    <Compile Include="Network\Sockets\NetworkClient.cs" />
+    <Compile Include="Network\Sockets\ServerSocket.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+</Project>
