@@ -210,31 +210,29 @@ namespace CO2_CORE_DLL
         }
 
         /// <summary>
-        /// Copies the values of num bytes from the location pointed by source directly to the memory block pointed
-        /// by destination.
-        /// The underlying type of the objects pointed by both the source and destination pointers are irrelevant for
-        /// this function; The result is a binary copy of the data.
-        /// The function does not check for any terminating null character in source - it always copies exactly num bytes.
-        /// To avoid overflows, the size of the arrays pointed by both the destination and source parameters, shall be
-        /// at least num bytes, and should not overlap (for overlapping memory blocks, memmove is a safer approach).
+        /// Sets the first num bytes of the block of memory pointed by ptr to the specified value.
         /// </summary>
-        public static void memcpy(void* dest, Object src)
+        public static void* memset(void* ptr, Byte value, Int32 num)
         {
-            Marshal.StructureToPtr(src, (IntPtr)dest, true);
+            for (Int32 i = 0; i < num; i++)
+                *(((Byte*)ptr) + i) = value;
+            return ptr;
         }
 
         /// <summary>
-        /// Copies the values of num bytes from the location pointed by source directly to the memory block pointed
-        /// by destination.
-        /// The underlying type of the objects pointed by both the source and destination pointers are irrelevant for
-        /// this function; The result is a binary copy of the data.
-        /// The function does not check for any terminating null character in source - it always copies exactly num bytes.
-        /// To avoid overflows, the size of the arrays pointed by both the destination and source parameters, shall be
-        /// at least num bytes, and should not overlap (for overlapping memory blocks, memmove is a safer approach).
+        /// Returns the length of str.
+        /// The length of a C string is determined by the terminating null-character: A C string is as long as
+        /// the amount of characters between the beginning of the string and the terminating null character.
+        /// This should not be confused with the size of the array that holds the string.
         /// </summary>
-        public static void memcpy(Object dest, void* src)
+        public static Int32 strlen(Byte* ptr)
         {
-            Marshal.PtrToStructure((IntPtr)src, dest);
+            for (Int32 i = 0; i < Int32.MaxValue; i++)
+            {
+                if (ptr[i] == '\0')
+                    return i;
+            }
+            return Int32.MaxValue;
         }
 
         /// <summary>

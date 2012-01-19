@@ -1,0 +1,50 @@
+﻿libBAR v1.0.0 (REV-6) new features and fixed bugs (from REV-5) :
+
+1.  Add the support of the ChatLog files.
+2.  Add the support of the Windsoul Data File packages.
+3.  Add an extension to the String class to get a pointer.
+4.  Add an implementation of the memset function in the Kernel.
+5.  Fix the problem of redondant key in the MagicType class.
+
+January 18th, 2012
+
+libBAR v1.0.0 (REV-5) new features and fixed bugs :
+
+1.  Base revision of the release on EPvP.
+
+January 10th, 2012
+
+--------
+
+What is implemented yet:
+
+CO2_CORE_DLL
+- Ini: INI wrapper. Still using the WinAPI.
+- Kernel: Kernel of the library. Contains memory management, etc. (memcpy/memset/malloc/free/srand/rand)
+- MSRandom: Microsoft C Random implementation. (srand/rand)
+- MyString: Extensions to the String class.
+- Queue: Saint's queue class. Still not worked on.
+
+CO2_CORE_DLL.IO
+- AutoAllot: Binary / Custom Text support (not fully working for text)
+- LevelExp: Binary / Custom Text support
+- MagicType: Binary / Text support
+- ChatLog: Binary / Custom Text support
+- WDF: Windsoul Data File, mostly fully supported
+
+CO2_CORE_DLL.Net
+- Msg: Basic class for packets. Work with structure and packet writer.
+
+CO2_CORE_DLL.Net.Sockets
+- ServerSocket: Server socket class to create a server using TCP/IPv4.
+- NetworkClient: Client class used by the server.
+- ClientSocket: Client socket class to create a client using TCP/IPv4.
+- Event: Network events.
+
+CO2_CORE_DLL.Security.Cryptography
+- COCAC: Conquer Online Client Asymmetric Cipher
+- COFAC: Conquer Online File Asymmetric Cipher
+- CORC5: Conquer Online Rivest Cipher 5
+- COSAC: Conquer Online Server Asymmetric Cipher
+
+Special thanks to Sparkie, Hybrid, Saint & high6 for all their contributions in the community.

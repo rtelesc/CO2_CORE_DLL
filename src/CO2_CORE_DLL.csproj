@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CO2_CORE_DLL</RootNamespace>
     <AssemblyName>CO2_CORE_DLL</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>
     </StartupObject>
@@ -57,14 +57,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ini.cs" />
+    <Compile Include="IO\ChatLog.cs" />
     <Compile Include="Kernel.cs" />
     <Compile Include="MSRandom.cs" />
+    <Compile Include="MyString.cs" />
     <Compile Include="Queue.cs" />
+    <None Include="CHANGES" />
     <Content Include="Constants.txt" />
     <Compile Include="IO\AutoAllot.cs" />
     <Compile Include="IO\LevelExp.cs" />

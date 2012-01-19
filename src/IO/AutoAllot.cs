@@ -224,7 +224,8 @@ namespace CO2_CORE_DLL.IO
                 {
                     if (Entries[Profession].Length < Level)
                     {
-                        Kernel.memcpy(Entry, (Entry*)Entries[Profession][Level - 1]);
+                        fixed (Entry* pEntry = &Entry)
+                            Kernel.memcpy(pEntry, (Entry*)(Entries[Profession][Level - 1]), sizeof(Entry));
                         return true;
                     }
                 }

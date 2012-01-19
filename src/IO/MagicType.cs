@@ -18,10 +18,6 @@
 // * ************************************************************
 // * Originally created by CptSky (December 27th, 2011)
 // * Copyright (C) 2011 CptSky
-// * 
-// * ************************************************************
-// *                      CHANGE LOG
-// * ************************************************************
 // *
 // * ************************************************************
 
@@ -217,7 +213,8 @@ namespace CO2_CORE_DLL.IO
                         Stream.Read(Buffer, 0, sizeof(Entry));
                         Kernel.memcpy((Byte*)pEntry, Buffer, sizeof(Entry));
 
-                        Entries.Add(pHeader->UIDs[i], (IntPtr)pEntry);
+                        if (!Entries.ContainsKey(pHeader->UIDs[i]))
+                            Entries.Add(pHeader->UIDs[i], (IntPtr)pEntry);
                     }
                     Kernel.free(pHeader);
                 }
@@ -309,7 +306,8 @@ namespace CO2_CORE_DLL.IO
                             pEntry->CanBeusedInMarket = UInt32.Parse(Parts[46]);
                             pEntry->TargetWoundDelay = UInt32.Parse(Parts[47]);
 
-                            Entries.Add((Int32)((pEntry->MagicType * 10) + pEntry->Level), (IntPtr)pEntry);
+                            if (!Entries.ContainsKey((Int32)((pEntry->MagicType * 10) + pEntry->Level)))
+                                Entries.Add((Int32)((pEntry->MagicType * 10) + pEntry->Level), (IntPtr)pEntry);
                         }
                         catch (Exception Exc)
                         { 
@@ -440,7 +438,8 @@ namespace CO2_CORE_DLL.IO
             {
                 if (Entries.ContainsKey((Int32)((MagicType * 10) + Level)))
                 {
-                    Kernel.memcpy(Entry, (Entry*)Entries[(Int32)((MagicType * 10) + Level)]);
+                    fixed (Entry* pEntry = &Entry)
+                        Kernel.memcpy(pEntry, (Entry*)Entries[(Int32)((MagicType * 10) + Level)], sizeof(Entry));
                     return true;
                 }
             }
@@ -458,7 +457,7 @@ namespace CO2_CORE_DLL.IO
                 if (!Entries.ContainsKey((Int32)((Entry.MagicType * 10) + Entry.Level)))
                 {
                     Entry* pEntry = (Entry*)Kernel.calloc(sizeof(Entry));
-                    Kernel.memcpy(pEntry, Entry);
+                    Kernel.memcpy(pEntry, &Entry, sizeof(Entry));
 
                     Entries.Add((Int32)((pEntry->MagicType * 10) + pEntry->Level), (IntPtr)pEntry);
                     return true;
@@ -492,7 +491,7 @@ namespace CO2_CORE_DLL.IO
             {
                 if (Entries.ContainsKey((Int32)((Entry.MagicType * 10) + Entry.Level)))
                 {
-                    Kernel.memcpy((Entry*)Entries[(Int32)((Entry.MagicType * 10) + Entry.Level)], Entry);
+                    Kernel.memcpy((Entry*)Entries[(Int32)((Entry.MagicType * 10) + Entry.Level)], &Entry, sizeof(Entry));
                     return true;
                 }
             }
