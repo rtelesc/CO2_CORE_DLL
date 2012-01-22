@@ -64,15 +64,20 @@
   <ItemGroup>
     <Compile Include="Ini.cs" />
     <Compile Include="IO\ChatLog.cs" />
+    <Compile Include="IO\DBC\EMOI.cs" />
+    <Compile Include="IO\DBC\MATR.cs" />
+    <Compile Include="IO\Ini\EmotionIco.cs" />
+    <Compile Include="IO\Ini\ItemType.cs" />
+    <Compile Include="IO\Ini\Material.cs" />
     <Compile Include="Kernel.cs" />
     <Compile Include="MSRandom.cs" />
     <Compile Include="MyString.cs" />
     <Compile Include="Queue.cs" />
     <None Include="CHANGES" />
     <Content Include="Constants.txt" />
-    <Compile Include="IO\AutoAllot.cs" />
-    <Compile Include="IO\LevelExp.cs" />
-    <Compile Include="IO\MagicType.cs" />
+    <Compile Include="IO\Ini\AutoAllot.cs" />
+    <Compile Include="IO\Ini\LevelExp.cs" />
+    <Compile Include="IO\Ini\MagicType.cs" />
     <Compile Include="IO\TPD.cs" />
     <Compile Include="IO\TPI.cs" />
     <Compile Include="IO\Compression\zlib\Adler32.cs" />

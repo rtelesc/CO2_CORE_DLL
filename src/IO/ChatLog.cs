@@ -63,15 +63,12 @@ namespace CO2_CORE_DLL.IO
             if (Name == null || Server == null)
                 throw new NullReferenceException();
 
-            if (Name.Length > MAX_NAMESIZE - 1 || Server.Length > MAX_SERVERSIZE - 1)
-                throw new OverflowException();
-
             this.Entries = new List<IntPtr>();
             this.pName = (Byte*)Kernel.calloc(MAX_NAMESIZE);
             this.pServer = (Byte*)Kernel.calloc(MAX_SERVERSIZE);
 
-            Kernel.memcpy(pName, Name.ToPointer(), Kernel.strlen(Name.ToPointer()));
-            Kernel.memcpy(pServer, Server.ToPointer(), Kernel.strlen(Server.ToPointer()));
+            Kernel.memcpy(pName, Name.ToPointer(), Math.Min(MAX_NAMESIZE - 1, Name.Length));
+            Kernel.memcpy(pServer, Server.ToPointer(), Math.Min(MAX_SERVERSIZE - 1, Server.Length));
 
             NameLength = Kernel.strlen(pName);
             if (NameLength <= 1)

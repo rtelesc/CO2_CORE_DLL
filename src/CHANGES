@@ -1,4 +1,12 @@
-﻿libBAR v1.0.0 (REV-6) new features and fixed bugs (from REV-5) :
+﻿CO2_CORE_DLL v1.0.0 (REV-7) new features and fixed bugs (from REV-6) :
+
+1.  Add the support of the EMOI (DBC) files. [EmotionIco]
+2.  Add the support of the MATR (DBC) files. [Material]
+3.  Add the support of the ItemType files.
+
+January 22th, 2012
+
+CO2_CORE_DLL v1.0.0 (REV-6) new features and fixed bugs (from REV-5) :
 
 1.  Add the support of the ChatLog files.
 2.  Add the support of the Windsoul Data File packages.
@@ -8,7 +16,7 @@
 
 January 18th, 2012
 
-libBAR v1.0.0 (REV-5) new features and fixed bugs :
+CO2_CORE_DLL v1.0.0 (REV-5) new features and fixed bugs :
 
 1.  Base revision of the release on EPvP.
 
@@ -27,10 +35,17 @@ CO2_CORE_DLL
 
 CO2_CORE_DLL.IO
 - AutoAllot: Binary / Custom Text support (not fully working for text)
+- EmotionIco: EMOI Wrapper
+- ItemType: Custom Binary / Text support
 - LevelExp: Binary / Custom Text support
 - MagicType: Binary / Text support
+- Material: MATR Wrapper
+
 - ChatLog: Binary / Custom Text support
 - WDF: Windsoul Data File, mostly fully supported
+
+- EMOI (DBC): Binary / Text support
+- MATR (DBC): Binary / Text support
 
 CO2_CORE_DLL.Net
 - Msg: Basic class for packets. Work with structure and packet writer.
