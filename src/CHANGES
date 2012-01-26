@@ -1,4 +1,10 @@
-﻿CO2_CORE_DLL v1.0.0 (REV-7) new features and fixed bugs (from REV-6) :
+﻿CO2_CORE_DLL v1.0.0 (REV-8) new features and fixed bugs (from REV-7) :
+
+1.  Finish the implementation of the WDF files.
+
+January 25th, 2012
+
+CO2_CORE_DLL v1.0.0 (REV-7) new features and fixed bugs (from REV-6) :
 
 1.  Add the support of the EMOI (DBC) files. [EmotionIco]
 2.  Add the support of the MATR (DBC) files. [Material]
@@ -42,7 +48,7 @@ CO2_CORE_DLL.IO
 - Material: MATR Wrapper
 
 - ChatLog: Binary / Custom Text support
-- WDF: Windsoul Data File, mostly fully supported
+- WDF: Windsoul Data File, fully supported
 
 - EMOI (DBC): Binary / Text support
 - MATR (DBC): Binary / Text support

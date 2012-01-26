@@ -66,6 +66,7 @@
     <Compile Include="IO\ChatLog.cs" />
     <Compile Include="IO\DBC\EMOI.cs" />
     <Compile Include="IO\DBC\MATR.cs" />
+    <Compile Include="IO\DBC\MESH.cs" />
     <Compile Include="IO\Ini\EmotionIco.cs" />
     <Compile Include="IO\Ini\ItemType.cs" />
     <Compile Include="IO\Ini\Material.cs" />

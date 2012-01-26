@@ -223,10 +223,10 @@ namespace CO2_CORE_DLL.IO
         /// 
         /// Return false if the entry does not exist.
         /// </summary>
-        public Boolean GetEntryData(UInt32 ID, out Byte[] Data, out Int32 Length)
+        public Boolean GetEntryData(UInt32 ID, out Byte[] Data)
         {
             Data = null;
-            Length = 0;
+            Int32 Length = 0;
 
             Entry* pEntry = null;
             lock (Entries)
@@ -311,10 +311,91 @@ namespace CO2_CORE_DLL.IO
         /// 
         /// An interruption during the execution will corrupt the archive as the 
         /// implementation is not completely safe... (Lack of motivation.)
+        /// 
+        /// Note: The function do not check if the size will overflow the package...
+        ///       If the current size of the package plus the size of the file is
+        ///       arround 4 GiB, avoid using this function...
         /// </summary>
         public Boolean AddEntry(UInt32 ID, String Source)
         {
-            throw new NotImplementedException();
+            lock (Entries)
+            {
+                if (Entries.ContainsKey(ID))
+                    return false;
+
+                if (!File.Exists(Source))
+                    return false;
+
+                Byte[] Buffer = new Byte[Kernel.MAX_BUFFER_SIZE];
+
+                Entry* pEntry = (Entry*)Kernel.malloc(sizeof(Entry));
+                pEntry->UID = ID;
+                pEntry->Offset = pHeader->Offset;
+                pEntry->Size = (UInt32)new FileInfo(Source).Length;
+                pEntry->Space = 0;
+
+                //Move all the data to make place
+                String TmpPath = Path.GetTempFileName();
+                using (FileStream Reader = new FileStream(Filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    using (FileStream Writer = new FileStream(TmpPath, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
+                    {
+                        Reader.Seek(pHeader->Offset, SeekOrigin.Begin);
+
+                        for (Int32 i = 0; i < pHeader->Number; i++)
+                        {
+                            Reader.Read(Buffer, 0, sizeof(Entry));
+                            Writer.Write(Buffer, 0, sizeof(Entry));
+                        }
+                    }
+                }
+                using (FileStream Reader = new FileStream(TmpPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    using (FileStream Writer = new FileStream(Filename, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
+                    {
+                        Writer.Seek(pHeader->Offset + pEntry->Size, SeekOrigin.Begin);
+
+                        for (Int32 i = 0; i < pHeader->Number; i++)
+                        {
+                            Reader.Read(Buffer, 0, sizeof(Entry));
+                            Writer.Write(Buffer, 0, sizeof(Entry));
+                        }
+                    }
+                }
+                File.Delete(TmpPath);
+
+                //Write new data
+                using (FileStream Reader = new FileStream(Source, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    using (FileStream Writer = new FileStream(Filename, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
+                    {
+                        Writer.Seek(pHeader->Offset, SeekOrigin.Begin);
+
+                        Int32 Read = Reader.Read(Buffer, 0, Kernel.MAX_BUFFER_SIZE);
+                        while (Read > 0)
+                        {
+                            Writer.Write(Buffer, 0, Read);
+                            Read = Reader.Read(Buffer, 0, Kernel.MAX_BUFFER_SIZE);
+                        }
+                    }
+                }
+
+                //Write new offsets
+                pHeader->Number++;
+                pHeader->Offset += pEntry->Size;
+                using (FileStream Writer = new FileStream(Filename, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
+                {
+                    Kernel.memcpy(Buffer, pHeader, sizeof(Header));
+                    Writer.Write(Buffer, 0, sizeof(Header));
+
+                    Writer.Seek(0, SeekOrigin.End);
+                    Kernel.memcpy(Buffer, pEntry, sizeof(Entry));
+                    Writer.Write(Buffer, 0, sizeof(Entry));
+                }
+
+                Entries.Add(ID, (IntPtr)pEntry);
+                return true;
+            }
         }
 
         /// <summary>
@@ -400,10 +481,109 @@ namespace CO2_CORE_DLL.IO
         /// 
         /// An interruption during the execution will corrupt the archive as the 
         /// implementation is not completely safe... (Lack of motivation.)
+        /// 
+        /// Note: The function do not check if the size will overflow the package...
+        ///       If the current size of the package plus the size of the file is
+        ///       arround 4 GiB, avoid using this function...
         /// </summary>
         public Boolean UpdateEntry(UInt32 ID, String Source)
         {
-            throw new NotImplementedException();
+            lock (Entries)
+            {
+                if (!Entries.ContainsKey(ID))
+                    return false;
+
+                if (!File.Exists(Source))
+                    return false;
+
+                Byte[] Buffer = new Byte[Kernel.MAX_BUFFER_SIZE];
+
+                FileInfo Info = new FileInfo(Source);
+                Entry* pEntry = (Entry*)Entries[ID];
+
+                //Move all the data to make place
+                String TmpPath = Path.GetTempFileName();
+                using (FileStream Reader = new FileStream(Filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    using (FileStream Writer = new FileStream(TmpPath, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
+                    {
+                        Reader.Seek(pEntry->Offset + pEntry->Size, SeekOrigin.Begin);
+                        Writer.Seek(0, SeekOrigin.Begin);
+
+                        Int32 Read = Reader.Read(Buffer, 0, Kernel.MAX_BUFFER_SIZE);
+                        while (Read > 0)
+                        {
+                            Writer.Write(Buffer, 0, Read);
+                            Read = Reader.Read(Buffer, 0, Kernel.MAX_BUFFER_SIZE);
+                        }
+                    }
+                }
+                using (FileStream Reader = new FileStream(TmpPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    using (FileStream Writer = new FileStream(Filename, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
+                    {
+                        Reader.Seek(0, SeekOrigin.Begin);
+                        Writer.Seek(pEntry->Offset + Info.Length, SeekOrigin.Begin);
+
+                        Int32 Read = Reader.Read(Buffer, 0, Kernel.MAX_BUFFER_SIZE);
+                        while (Read > 0)
+                        {
+                            Writer.Write(Buffer, 0, Read);
+                            Read = Reader.Read(Buffer, 0, Kernel.MAX_BUFFER_SIZE);
+                        }
+                    }
+                }
+                File.Delete(TmpPath);
+
+                //Write new data
+                using (FileStream Reader = new FileStream(Source, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    using (FileStream Writer = new FileStream(Filename, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
+                    {
+                        Writer.Seek(pEntry->Offset, SeekOrigin.Begin);
+
+                        Int32 Read = Reader.Read(Buffer, 0, Kernel.MAX_BUFFER_SIZE);
+                        while (Read > 0)
+                        {
+                            Writer.Write(Buffer, 0, Read);
+                            Read = Reader.Read(Buffer, 0, Kernel.MAX_BUFFER_SIZE);
+                        }
+                    }
+                }
+
+                //Change all the offset & size & truncate if required
+                using (FileStream Writer = new FileStream(Filename, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
+                {
+                    pHeader->Offset = (UInt32)((Int64)pHeader->Offset + (Info.Length - (Int64)pEntry->Size));
+                    Kernel.memcpy(Buffer, pHeader, sizeof(Header));
+                    Writer.Write(Buffer, 0, sizeof(Header));
+
+                    Writer.Seek(pHeader->Offset, SeekOrigin.Begin);
+                    foreach (IntPtr Ptr in Entries.Values)
+                    {
+                        Entry* pTmpEntry = (Entry*)Ptr;
+                        if (pTmpEntry->UID == pEntry->UID)
+                            continue;
+
+                        if (pTmpEntry->Offset > pEntry->Offset)
+                            pTmpEntry->Offset = (UInt32)((Int64)pTmpEntry->Offset + (Info.Length - (Int64)pEntry->Size));
+
+                        Kernel.memcpy(Buffer, pTmpEntry, sizeof(Entry));
+                        Writer.Write(Buffer, 0, sizeof(Entry));
+                    }
+
+                    UInt32 OldSize = pEntry->Size;
+                    pEntry->Size = (UInt32)Info.Length;
+
+                    Kernel.memcpy(Buffer, pEntry, sizeof(Entry));
+                    Writer.Write(Buffer, 0, sizeof(Entry));
+
+                    if (Info.Length < OldSize)
+                        Writer.SetLength(new FileInfo(Filename).Length - (OldSize - Info.Length));
+                }
+
+                return true;
+            }
         }
 
         /// <summary>
