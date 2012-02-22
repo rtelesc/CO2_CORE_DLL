@@ -24,6 +24,7 @@
 using System;
 using System.Text;
 using System.Threading;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace CO2_CORE_DLL
@@ -291,6 +292,14 @@ namespace CO2_CORE_DLL
                 Builder.Append((Char)src[i + pos]);
             }
             return Builder.ToString();
+        }
+
+        public static void assert(Boolean expression)
+        {
+            #if DEBUG
+            if (!expression)
+                throw new Exception("Assertion failed!");
+            #endif
         }
 
         #endregion //Methods

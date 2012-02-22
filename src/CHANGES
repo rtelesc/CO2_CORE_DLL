@@ -1,4 +1,14 @@
-﻿CO2_CORE_DLL v1.0.0 (REV-8) new features and fixed bugs (from REV-7) :
+﻿CO2_CORE_DLL v1.0.0 (REV-9) new features and fixed bugs (from REV-8) :
+
+1.  Add the support of Blowfish Cipher Feedback (CFB64) algorithm.
+2.  Add the support of the Diffie-Hellman key exchange algorithm.
+3.  Add an implementation of BigInteger.
+4.  Add an implementation of the C assertion.
+5.  Add the support of the MESH (DBC) files. [Armet, Armor, Head, Misc, Mount, Weapon]
+
+February 22th, 2012
+
+CO2_CORE_DLL v1.0.0 (REV-8) new features and fixed bugs (from REV-7) :
 
 1.  Finish the implementation of the WDF files.
 
@@ -34,24 +44,24 @@ What is implemented yet:
 
 CO2_CORE_DLL
 - Ini: INI wrapper. Still using the WinAPI.
-- Kernel: Kernel of the library. Contains memory management, etc. (memcpy/memset/malloc/free/srand/rand)
+- Kernel: Kernel of the library. Contains memory management, etc. (memcpy/memset/malloc/free/srand/rand/assert)
+- BigInteger: Chew Keong TAN BigInteger implementation
 - MSRandom: Microsoft C Random implementation. (srand/rand)
 - MyString: Extensions to the String class.
 - Queue: Saint's queue class. Still not worked on.
 
 CO2_CORE_DLL.IO
 - AutoAllot: Binary / Custom Text support (not fully working for text)
-- EmotionIco: EMOI Wrapper
 - ItemType: Custom Binary / Text support
 - LevelExp: Binary / Custom Text support
 - MagicType: Binary / Text support
-- Material: MATR Wrapper
 
 - ChatLog: Binary / Custom Text support
 - WDF: Windsoul Data File, fully supported
 
-- EMOI (DBC): Binary / Text support
-- MATR (DBC): Binary / Text support
+- EMOI (DBC): Binary / Text support [EmotionIco]
+- MATR (DBC): Binary / Text support [Material]
+- MESH (DBC): Binary / Text support [Armet, Armor, Head, Misc, Mount, Weapon]
 
 CO2_CORE_DLL.Net
 - Msg: Basic class for packets. Work with structure and packet writer.
@@ -63,9 +73,11 @@ CO2_CORE_DLL.Net.Sockets
 - Event: Network events.
 
 CO2_CORE_DLL.Security.Cryptography
+- Blowfish: Blowfish Cipher Feedback (CFB64)
 - COCAC: Conquer Online Client Asymmetric Cipher
 - COFAC: Conquer Online File Asymmetric Cipher
 - CORC5: Conquer Online Rivest Cipher 5
 - COSAC: Conquer Online Server Asymmetric Cipher
+- DiffieHellman: Diffie-Hellman Key Exchange.
 
 Special thanks to Sparkie, Hybrid, Saint & high6 for all their contributions in the community.

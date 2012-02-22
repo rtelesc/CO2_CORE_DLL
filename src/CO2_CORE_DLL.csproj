@@ -62,14 +62,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BigInteger.cs" />
     <Compile Include="Ini.cs" />
     <Compile Include="IO\ChatLog.cs" />
     <Compile Include="IO\DBC\EMOI.cs" />
     <Compile Include="IO\DBC\MATR.cs" />
     <Compile Include="IO\DBC\MESH.cs" />
-    <Compile Include="IO\Ini\EmotionIco.cs" />
+    <Compile Include="IO\Ini\Head.cs" />
     <Compile Include="IO\Ini\ItemType.cs" />
-    <Compile Include="IO\Ini\Material.cs" />
     <Compile Include="Kernel.cs" />
     <Compile Include="MSRandom.cs" />
     <Compile Include="MyString.cs" />
@@ -100,12 +100,14 @@
     <Compile Include="Net\Sockets\Event.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IO\WDF.cs" />
+    <Compile Include="Security\Cryptography\Blowfish.cs" />
     <Compile Include="Security\Cryptography\COCAC.cs" />
     <Compile Include="Security\Cryptography\COFAC.cs" />
     <Compile Include="Security\Cryptography\CORC5.cs" />
     <Compile Include="Security\Cryptography\COSAC.cs" />
     <Compile Include="Net\Sockets\NetworkClient.cs" />
     <Compile Include="Net\Sockets\ServerSocket.cs" />
+    <Compile Include="Security\Cryptography\DiffieHellman.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

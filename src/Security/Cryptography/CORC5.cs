@@ -69,11 +69,8 @@ namespace CO2_CORE_DLL.Security.Cryptography
         /// </summary>
         public void GenerateKey(Byte* pBufKey, Int32 Length)
         {
-            if (pBufKey == null)
-                throw new NullReferenceException("Buffer can't be null!");
-
-            if (Length != RC5_16)
-                throw new Exception("Buffer length should be " + RC5_16 + "!");
+            Kernel.assert(pBufKey != null);
+            Kernel.assert(Length > 0 && Length == RC5_16);
 
             if (BufKey != null)
                 Kernel.free(BufKey);
@@ -110,15 +107,10 @@ namespace CO2_CORE_DLL.Security.Cryptography
         /// </summary>
         public void Encrypt(Byte* pBuf, Int32 Length)
         {
-            if (Length % 8 != 0)
-                throw new Exception("Buffer length should be a multiple of 8.");
+            Kernel.assert(pBuf != null);
+            Kernel.assert(Length > 0 && Length % 8 == 0);
 
             Length = (Length / 8) * 8;
-            if (Length <= 0)
-                throw new Exception("Buffer length should be greater than 0.");
-
-            if (pBuf == null)
-                throw new NullReferenceException("Buffer can't be null!");
 
             UInt32* pBufData = (UInt32*)pBuf;
             for (Int32 k = 0; k < Length / 8; k++)
@@ -144,15 +136,10 @@ namespace CO2_CORE_DLL.Security.Cryptography
         /// </summary>
         public void Decrypt(Byte* pBuf, Int32 Length)
         {
-            if (Length % 8 != 0)
-                throw new Exception("Buffer length should be a multiple of 8.");
+            Kernel.assert(pBuf != null);
+            Kernel.assert(Length > 0 && Length % 8 == 0);
 
             Length = (Length / 8) * 8;
-            if (Length <= 0)
-                throw new Exception("Buffer length should be greater than 0.");
-
-            if (pBuf == null)
-                throw new NullReferenceException("Buffer can't be null!");
 
             UInt32* pBufData = (UInt32*)pBuf;
             for (Int32 k = 0; k < Length / 8; k++)
@@ -179,6 +166,9 @@ namespace CO2_CORE_DLL.Security.Cryptography
         /// </summary>
         public void GenerateKey(Byte[] BufKey)
         {
+            Kernel.assert(BufKey != null);
+            Kernel.assert(BufKey.Length > 0 && BufKey.Length == RC5_16);
+
             Int32 Length = BufKey.Length;
             fixed (Byte* pBufKey = BufKey)
                 GenerateKey(pBufKey, Length);
@@ -189,6 +179,9 @@ namespace CO2_CORE_DLL.Security.Cryptography
         /// </summary>
         public void Encrypt(ref Byte[] Buf)
         {
+            Kernel.assert(Buf != null);
+            Kernel.assert(Buf.Length > 0 && Buf.Length % 8 == 0);
+
             Int32 Length = Buf.Length;
             fixed (Byte* pBuf = Buf)
                 Encrypt(pBuf, Length);
@@ -199,6 +192,9 @@ namespace CO2_CORE_DLL.Security.Cryptography
         /// </summary>
         public void Decrypt(ref Byte[] Buf)
         {
+            Kernel.assert(Buf != null);
+            Kernel.assert(Buf.Length > 0 && Buf.Length % 8 == 0);
+
             Int32 Length = Buf.Length;
             fixed (Byte* pBuf = Buf)
                 Decrypt(pBuf, Length);

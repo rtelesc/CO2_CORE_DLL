@@ -70,11 +70,8 @@ namespace CO2_CORE_DLL.Security.Cryptography
         /// </summary>
         public void Encrypt(Byte* pBuf, Int32 Length)
         {
-            if (pBuf == null)
-                throw new NullReferenceException("Buffer can't be null!");
-
-            if (Length <= 0)
-                return;
+            Kernel.assert(pBuf != null);
+            Kernel.assert(Length > 0);
 
             for (Int32 i = 0; i < Length; i++)
             {
@@ -88,11 +85,8 @@ namespace CO2_CORE_DLL.Security.Cryptography
         /// </summary>
         public void Decrypt(Byte* pBuf, Int32 Length)
         {
-            if (pBuf == null)
-                throw new NullReferenceException("Buffer can't be null!");
-
-            if (Length <= 0)
-                return;
+            Kernel.assert(pBuf != null);
+            Kernel.assert(Length > 0);
 
             for (Int32 i = 0; i < Length; i++)
             {
@@ -106,6 +100,9 @@ namespace CO2_CORE_DLL.Security.Cryptography
         /// </summary>
         public void Encrypt(ref Byte[] Buf)
         {
+            Kernel.assert(Buf != null);
+            Kernel.assert(Buf.Length > 0);
+
             Int32 Length = Buf.Length;
             fixed (Byte* pBuf = Buf)
                 Encrypt(pBuf, Length);
@@ -116,6 +113,9 @@ namespace CO2_CORE_DLL.Security.Cryptography
         /// </summary>
         public void Decrypt(ref Byte[] Buf)
         {
+            Kernel.assert(Buf != null);
+            Kernel.assert(Buf.Length > 0);
+
             Int32 Length = Buf.Length;
             fixed (Byte* pBuf = Buf)
                 Decrypt(pBuf, Length);
