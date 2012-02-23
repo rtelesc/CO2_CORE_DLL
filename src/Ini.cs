@@ -24,6 +24,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 using System.Diagnostics;
@@ -213,82 +214,6 @@ namespace CO2_CORE_DLL
             StringBuilder Buffer = new StringBuilder(Kernel.MAX_BUFFER_SIZE);
             GetPrivateProfileString(Section, Key, "0", Buffer, Buffer.Capacity, Path);
             return Buffer.ToString();
-        }
-
-        ///// <summary>
-        ///// Read the value as a string.
-        ///// </summary>
-        //public String ReadValue2(String Section, String Key)
-        //{
-        //    Stopwatch sw = new Stopwatch();
-        //    sw.Start();
-        //    String Str = "";
-        //    IniStrGet(Section, Key, ref Str);
-        //    sw.Stop();
-        //    Console.WriteLine(sw.ElapsedMilliseconds + " " + sw.ElapsedTicks);
-        //    return Str;
-        //}
-
-        private Boolean IniStrGet(String Section, String Key, ref String Str)
-        {
-            if (Section == null || Key == null)
-                return false;
-
-            Section = "[" + Section + "]";
-            Key = Key.ToLowerInvariant();
-
-            using (StreamReader Stream = new StreamReader(Path, Encoding.GetEncoding("Windows-1252")))
-            {
-                Boolean Found = false;
-                String Line = null;
-                while (true)
-                {
-                    Line = Stream.ReadLine();
-                    if (Line == null)
-                        break;
-
-                    if (Line.Length < Section.Length)
-                        continue;
-
-                    if (0 != String.Compare(Section, 0, Line, 0, Section.Length, true))
-                        continue;
-
-                    while (true)
-                    {
-                        Line = Stream.ReadLine();
-                        if (Line == null)
-                            goto CLOSE;
-
-                        if (Line.Contains("[") && Line.Contains("]"))
-                            goto CLOSE;
-
-                        String TmpLine = Line.Replace(" ", "");
-                        TmpLine = TmpLine.Replace("\t", "");
-                        TmpLine = TmpLine.ToLowerInvariant();
-
-                        if (TmpLine.StartsWith(Key + "="))
-                        {
-                            Str = Line;
-                            for (Int32 i = 0; i < Line.Length; i++)
-                            {
-                                if (Line[i] == '=')
-                                {
-                                    Str = Line.Substring(i + 1, Line.Length - (i + 1));
-                                    Str = Str.TrimStart(new Char[] { ' ', '\t' });
-                                }
-                            }
-
-                            Found = true;
-                            goto CLOSE;
-                        }
-                    }
-                }
-
-            CLOSE:
-                //if (!Found)
-                //    Console.WriteLine("Error: [{0}] {1} not found in {2}.", Section, Key, Path);
-                return Found;
-            }
         }
     }
 }

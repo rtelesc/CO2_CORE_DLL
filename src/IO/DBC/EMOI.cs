@@ -184,7 +184,7 @@ namespace CO2_CORE_DLL.IO.DBC
 
                 for (Int32 i = 0; i < Pointers.Length; i++)
                 {
-                    Kernel.memcpy(Buffer, (Entry*)Pointers[0], sizeof(Entry));
+                    Kernel.memcpy(Buffer, (Entry*)Pointers[i], sizeof(Entry));
                     Stream.Write(Buffer, 0, sizeof(Entry));
                 }
                 Kernel.free(pHeader);

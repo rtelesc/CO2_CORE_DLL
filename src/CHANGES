@@ -1,4 +1,12 @@
-﻿CO2_CORE_DLL v1.0.0 (REV-9) new features and fixed bugs (from REV-8) :
+﻿CO2_CORE_DLL v1.0.0 (REV-10) new features and fixed bugs (from REV-9) :
+
+1.  Fix the MATR implementation. (SaveToDat)
+2.  Fix the EMOI implementation. (SaveToDat)
+3.  Add the support of the EFFE (DBC) files. [3DEffect]
+
+February 23th, 2012
+
+CO2_CORE_DLL v1.0.0 (REV-9) new features and fixed bugs (from REV-8) :
 
 1.  Add the support of Blowfish Cipher Feedback (CFB64) algorithm.
 2.  Add the support of the Diffie-Hellman key exchange algorithm.
@@ -59,6 +67,7 @@ CO2_CORE_DLL.IO
 - ChatLog: Binary / Custom Text support
 - WDF: Windsoul Data File, fully supported
 
+- EFFE (DBC): Binary / Text support [3DEffect]
 - EMOI (DBC): Binary / Text support [EmotionIco]
 - MATR (DBC): Binary / Text support [Material]
 - MESH (DBC): Binary / Text support [Armet, Armor, Head, Misc, Mount, Weapon]
