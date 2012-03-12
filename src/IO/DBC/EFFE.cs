@@ -36,7 +36,8 @@ namespace CO2_CORE_DLL.IO.DBC
     public unsafe class EFFE
     {
         public const Int32 MAX_NAMESIZE = 0x20;
-        public const Int32 EFFE_IDENTIFIER = 0x45464645;
+
+        private const Int32 EFFE_IDENTIFIER = 0x45464645;
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Header

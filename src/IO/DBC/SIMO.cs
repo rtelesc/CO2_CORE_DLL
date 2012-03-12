@@ -1,12 +1,12 @@
 ﻿// * ************************************************************
-// * * START:                                          matr.cs *
+// * * START:                                          simo.cs *
 // * ************************************************************
 
 // * ************************************************************
 // *                      INFORMATIONS
 // * ************************************************************
-// * MATR class for the library.
-// * matr.cs
+// * SIMO class for the library.
+// * simo.cs
 // * 
 // * --
 // *
@@ -16,7 +16,7 @@
 // * ************************************************************
 // *                      CREDITS
 // * ************************************************************
-// * Originally created by CptSky (January 22th, 2012)
+// * Originally created by CptSky (March 12th, 2012)
 // * Copyright (C) 2012 CptSky
 // *
 // * ************************************************************
@@ -30,14 +30,14 @@ using System.Runtime.InteropServices;
 namespace CO2_CORE_DLL.IO.DBC
 {
     /// <summary>
-    /// DBC / MATR
-    /// Files: Material
+    /// DBC / SIMO
+    /// Files: 3DSimpleObj
     /// </summary>
-    public unsafe class MATR
+    public unsafe class SIMO
     {
         public const Int32 MAX_NAMESIZE = 0x20;
 
-        private const Int32 MATR_IDENTIFIER = 0x5254414D;
+        private const Int32 SIMO_IDENTIFIER = 0x4F4D4953;
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Header
@@ -47,27 +47,31 @@ namespace CO2_CORE_DLL.IO.DBC
         };
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct Entry
+        private struct Entry
         {
-            public fixed Byte Name[MAX_NAMESIZE];
-            public UInt32 Param0;
-            public UInt32 Param1;
-            public UInt32 Param2;
-            public UInt32 Param3;
-            public UInt32 Param4;
+            public Int32 UniqId;
+            public Int32 Amount;
+            public fixed Byte Parts[1];
         };
 
-        private List<IntPtr> Entries = null;
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        private struct Part
+        {
+            public Int32 PartID;
+            public Int32 Texture;
+        };
+
+        private Dictionary<Int32, IntPtr> Entries = null;
 
         /// <summary>
-        /// Create a new MATR instance to handle the TQ's MATR file.
+        /// Create a new SIMO instance to handle the TQ's SIMO file.
         /// </summary>
-        public MATR()
+        public SIMO()
         {
-            this.Entries = new List<IntPtr>();
+            this.Entries = new Dictionary<Int32, IntPtr>();
         }
 
-        ~MATR()
+        ~SIMO()
         {
             Clear();
         }
@@ -81,7 +85,7 @@ namespace CO2_CORE_DLL.IO.DBC
             {
                 lock (Entries)
                 {
-                    foreach (IntPtr Ptr in Entries)
+                    foreach (IntPtr Ptr in Entries.Values)
                         Kernel.free((Entry*)Ptr);
                 }
                 Entries.Clear();
@@ -89,7 +93,7 @@ namespace CO2_CORE_DLL.IO.DBC
         }
 
         /// <summary>
-        /// Load the specified MATR file (in binary format) into the dictionary.
+        /// Load the specified SIMO file (in binary format) into the dictionary.
         /// </summary>
         public void LoadFromDat(String Path)
         {
@@ -105,19 +109,35 @@ namespace CO2_CORE_DLL.IO.DBC
                     Stream.Read(Buffer, 0, sizeof(Header));
                     Kernel.memcpy(pHeader, Buffer, sizeof(Header));
 
-                    if (pHeader->Identifier != MATR_IDENTIFIER)
+                    if (pHeader->Identifier != SIMO_IDENTIFIER)
                     {
                         Kernel.free(pHeader);
-                        throw new Exception("Invalid MATR Header in file: " + Path);
+                        throw new Exception("Invalid SIMO Header in file: " + Path);
                     }
 
                     for (Int32 i = 0; i < pHeader->Amount; i++)
                     {
-                        Entry* pEntry = (Entry*)Kernel.malloc(sizeof(Entry));
-                        Stream.Read(Buffer, 0, sizeof(Entry));
-                        Kernel.memcpy(pEntry, Buffer, sizeof(Entry));
+                        Stream.Read(Buffer, 0, sizeof(Int32) * 2);
 
-                        Entries.Add((IntPtr)pEntry);
+                        Int32 UniqId = 0;
+                        Int32 Amount = 0;
+                        fixed (Byte* pBuffer = Buffer)
+                        {
+                            UniqId = *((Int32*)pBuffer);
+                            Amount = *((Int32*)pBuffer + 1);
+                        }
+
+                        Int32 Length = (sizeof(Entry)) + (Amount * sizeof(Part));
+
+                        Entry* pEntry = (Entry*)Kernel.malloc(Length);
+                        Stream.Read(Buffer, 0, Length - sizeof(Entry));
+                        Kernel.memcpy(pEntry->Parts, Buffer, Length - sizeof(Entry));
+
+                        pEntry->UniqId = UniqId;
+                        pEntry->Amount = Amount;
+
+                        if (!Entries.ContainsKey(pEntry->UniqId))
+                            Entries.Add(pEntry->UniqId, (IntPtr)pEntry);
                     }
                     Kernel.free(pHeader);
                 }
@@ -125,7 +145,8 @@ namespace CO2_CORE_DLL.IO.DBC
         }
 
         /// <summary>
-        /// Load the specified MATR file (in plain format) into the dictionary.
+        /// Load the specified SIMO file (in plain format) into the dictionary.
+        /// TODO: The function is really slow... A good optimization is needed!
         /// </summary>
         public void LoadFromTxt(String Path)
         {
@@ -133,37 +154,31 @@ namespace CO2_CORE_DLL.IO.DBC
 
             lock (Entries)
             {
+                Ini Ini = new Ini(Path);
                 using (StreamReader Stream = new StreamReader(Path, Encoding.GetEncoding("Windows-1252")))
                 {
                     String Line = null;
-                    Int32 LineC = 0;
                     while ((Line = Stream.ReadLine()) != null)
                     {
-                        if (LineC == 0) //material = X
+                        if (Line.StartsWith("["))
                         {
-                            LineC++;
-                            continue;
-                        }
-                        LineC++;
+                            Int32 UniqId = Int32.Parse(Line.Substring("[ObjIDType".Length, Line.IndexOf("]") - "[ObjIDType".Length));
+                            Int32 Amount = Ini.ReadInt32("ObjIDType" + UniqId, "PartAmount");
 
-                        String[] Parts = Line.Split(' ');
-                        Entry* pEntry = (Entry*)Kernel.calloc(sizeof(Entry));
+                            Int32 Length = sizeof(Entry) + Amount * sizeof(Part);
+                            Entry* pEntry = (Entry*)Kernel.malloc(Length);
 
-                        try
-                        {
-                            Kernel.memcpy(pEntry->Name, Parts[0].ToPointer(), Math.Min(MAX_NAMESIZE - 1, Parts[0].Length));
-                            pEntry->Param0 = UInt32.Parse(Parts[1], System.Globalization.NumberStyles.HexNumber);
-                            pEntry->Param1 = UInt32.Parse(Parts[2], System.Globalization.NumberStyles.HexNumber);
-                            pEntry->Param2 = UInt32.Parse(Parts[3], System.Globalization.NumberStyles.HexNumber);
-                            pEntry->Param3 = UInt32.Parse(Parts[4], System.Globalization.NumberStyles.HexNumber);
-                            pEntry->Param4 = UInt32.Parse(Parts[5], System.Globalization.NumberStyles.HexNumber);
+                            pEntry->UniqId = UniqId;
+                            pEntry->Amount = Amount;
 
-                            Entries.Add((IntPtr)pEntry);
-                        }
-                        catch (Exception Exc)
-                        {
-                            Console.WriteLine("Error at line {0}.\n{1}", LineC, Exc);
-                            Kernel.free(pEntry);
+                            for (Int32 i = 0; i < Amount; i++)
+                            {
+                                ((Part*)pEntry->Parts)[i].PartID = Ini.ReadInt32("ObjIDType" + UniqId, "Part" + i.ToString());
+                                ((Part*)pEntry->Parts)[i].Texture = Ini.ReadInt32("ObjIDType" + UniqId, "Texture" + i.ToString());
+                            }
+
+                            if (!Entries.ContainsKey(pEntry->UniqId))
+                                Entries.Add(pEntry->UniqId, (IntPtr)pEntry);
                         }
                     }
                 }
@@ -171,7 +186,7 @@ namespace CO2_CORE_DLL.IO.DBC
         }
 
         /// <summary>
-        /// Save all the dictionary to the specified MATR file (in binary format).
+        /// Save all the dictionary to the specified SIMO file (in binary format).
         /// </summary>
         public void SaveToDat(String Path)
         {
@@ -183,11 +198,11 @@ namespace CO2_CORE_DLL.IO.DBC
                 lock (Entries)
                 {
                     Pointers = new IntPtr[Entries.Count];
-                    Entries.CopyTo(Pointers, 0);
+                    Entries.Values.CopyTo(Pointers, 0);
                 }
 
                 Header* pHeader = (Header*)Kernel.malloc(sizeof(Header));
-                pHeader->Identifier = MATR_IDENTIFIER;
+                pHeader->Identifier = SIMO_IDENTIFIER;
                 pHeader->Amount = Pointers.Length;
 
                 Kernel.memcpy(Buffer, pHeader, sizeof(Header));
@@ -195,15 +210,16 @@ namespace CO2_CORE_DLL.IO.DBC
 
                 for (Int32 i = 0; i < Pointers.Length; i++)
                 {
-                    Kernel.memcpy(Buffer, (Entry*)Pointers[i], sizeof(Entry));
-                    Stream.Write(Buffer, 0, sizeof(Entry));
+                    Int32 Length = sizeof(Entry) + (((Entry*)Pointers[i])->Amount * sizeof(Part));
+                    Kernel.memcpy(Buffer, (Entry*)Pointers[i], Length);
+                    Stream.Write(Buffer, 0, Length - 1);
                 }
                 Kernel.free(pHeader);
             }
         }
 
         /// <summary>
-        /// Save all the dictionary to the specified MATR file (in plain format).
+        /// Save all the dictionary to the specified SIMO file (in plain format).
         /// </summary>
         public void SaveToTxt(String Path)
         {
@@ -214,22 +230,21 @@ namespace CO2_CORE_DLL.IO.DBC
                 lock (Entries)
                 {
                     Pointers = new IntPtr[Entries.Count];
-                    Entries.CopyTo(Pointers, 0);
+                    Entries.Values.CopyTo(Pointers, 0);
                 }
 
-                Stream.WriteLine("material={0}", Pointers.Length);
                 for (Int32 i = 0; i < Pointers.Length; i++)
                 {
                     Entry* pEntry = (Entry*)Pointers[i];
 
-                    StringBuilder Builder = new StringBuilder(Kernel.MAX_BUFFER_SIZE);
-                    Builder.Append(Kernel.cstring(pEntry->Name, MAX_NAMESIZE) + " ");
-                    Builder.Append(pEntry->Param0.ToString("X2") + " ");
-                    Builder.Append(pEntry->Param1.ToString("X2") + " ");
-                    Builder.Append(pEntry->Param2.ToString("X2") + " ");
-                    Builder.Append(pEntry->Param3.ToString("X2") + " ");
-                    Builder.Append(pEntry->Param4.ToString("X2"));
-                    Stream.WriteLine(Builder.ToString());
+                    Stream.WriteLine("[ObjIDType{0}]", pEntry->UniqId);
+                    Stream.WriteLine("PartAmount={0}", pEntry->Amount);
+                    for (Int32 x = 0; x < pEntry->Amount; x++)
+                    {
+                        Stream.WriteLine("Part{0}={1}", x, ((Part*)pEntry->Parts)[x].PartID);
+                        Stream.WriteLine("Texture{0}={1}", x, ((Part*)pEntry->Parts)[x].Texture);
+                    }
+                    Stream.WriteLine();
                 }
             }
         }
@@ -237,5 +252,5 @@ namespace CO2_CORE_DLL.IO.DBC
 }
 
 // * ************************************************************
-// * * END:                                             matr.cs *
+// * * END:                                             simo.cs *
 // * ************************************************************

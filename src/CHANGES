@@ -1,4 +1,16 @@
-﻿CO2_CORE_DLL v1.0.0 (REV-10) new features and fixed bugs (from REV-9) :
+﻿CO2_CORE_DLL v1.0.0 (REV-11) new features and fixed bugs (from REV-10) :
+
+1.  Adapt the MagicType, ItemType and LevelExp implementations to work like a Dictionary/List to be used as a database.
+2.  Add a MathExt class that implement a thread-safe random.
+3.  Add the support of the SIMO (DBC) files. [3DSimpleObj]
+4.  Add the support of the ROPT (DBC) files. [RolePart]
+5.  Add the support of the RSDB [32bits] (DBC) files. [3DEffectObj, 3DObj, Sound]
+6.  Add the support of the RSDB [64bits] (DBC) files. [3DMotion, ArmetMotion, ArmorMotion, HeadMotion, MiscMotion, MountMotion, WeaponMotion]
+7.  Fix the COFAC implementation where the encrypt/decrypt functions where inversed.
+
+March 12th, 2012
+
+CO2_CORE_DLL v1.0.0 (REV-10) new features and fixed bugs (from REV-9) :
 
 1.  Fix the MATR implementation. (SaveToDat)
 2.  Fix the EMOI implementation. (SaveToDat)

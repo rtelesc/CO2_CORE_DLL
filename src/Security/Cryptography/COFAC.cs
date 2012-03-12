@@ -75,8 +75,8 @@ namespace CO2_CORE_DLL.Security.Cryptography
 
             for (Int32 i = 0; i < Length; i++)
             {
-                Int32 tmp = pBuf[i] ^ BufKey[i % COFAC_KEY];
-                pBuf[i] = (Byte)((tmp << (8 - (i % 8))) + (tmp >> (i % 8)));
+                Int32 tmp = (Byte)((pBuf[i] >> (8 - (i % 8))) + (pBuf[i] << (i % 8)));
+                pBuf[i] = (Byte)(tmp ^ BufKey[i % COFAC_KEY]);
             }
         }
 
@@ -90,8 +90,8 @@ namespace CO2_CORE_DLL.Security.Cryptography
 
             for (Int32 i = 0; i < Length; i++)
             {
-                Int32 tmp = (Byte)((pBuf[i] >> (8 - (i % 8))) + (pBuf[i] << (i % 8)));
-                pBuf[i] = (Byte)(tmp ^ BufKey[i % COFAC_KEY]);
+                Int32 tmp = pBuf[i] ^ BufKey[i % COFAC_KEY];
+                pBuf[i] = (Byte)((tmp << (8 - (i % 8))) + (tmp >> (i % 8)));
             }
         }
 

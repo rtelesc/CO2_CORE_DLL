@@ -157,7 +157,8 @@ namespace CO2_CORE_DLL.Net.Sockets
             if (Alive)
             {
                 Alive = false;
-                Sock.BeginDisconnect(false, new AsyncCallback(EndDisconnect), null);
+                try { Sock.BeginDisconnect(false, new AsyncCallback(EndDisconnect), null); }
+                catch { }
             }
         }
 

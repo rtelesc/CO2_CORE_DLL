@@ -36,7 +36,8 @@ namespace CO2_CORE_DLL.IO.DBC
     public unsafe class MESH
     {
         public const Int32 MAX_NAMESIZE = 0x20;
-        public const Int32 MESH_IDENTIFIER = 0x4853454D;
+
+        private const Int32 MESH_IDENTIFIER = 0x4853454D;
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Header

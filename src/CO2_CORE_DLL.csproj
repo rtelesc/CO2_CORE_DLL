@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -14,8 +14,10 @@
     <FileAlignment>512</FileAlignment>
     <StartupObject>
     </StartupObject>
-    <TargetFrameworkSubset>
-    </TargetFrameworkSubset>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -64,14 +66,18 @@
   <ItemGroup>
     <Compile Include="BigInteger.cs" />
     <Compile Include="Ini.cs" />
-    <Compile Include="Ini2.cs" />
     <Compile Include="IO\ChatLog.cs" />
     <Compile Include="IO\DBC\EFFE.cs" />
     <Compile Include="IO\DBC\EMOI.cs" />
     <Compile Include="IO\DBC\MATR.cs" />
     <Compile Include="IO\DBC\MESH.cs" />
+    <Compile Include="IO\DBC\ROPT.cs" />
+    <Compile Include="IO\DBC\RSDB_BIG.cs" />
+    <Compile Include="IO\DBC\RSDB_SMALL.cs" />
+    <Compile Include="IO\DBC\SIMO.cs" />
     <Compile Include="IO\Ini\ItemType.cs" />
     <Compile Include="Kernel.cs" />
+    <Compile Include="Math\MathExt.cs" />
     <Compile Include="MSRandom.cs" />
     <Compile Include="MyString.cs" />
     <Compile Include="Queue.cs" />

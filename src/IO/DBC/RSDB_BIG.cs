@@ -1,12 +1,12 @@
 ﻿// * ************************************************************
-// * * START:                                           emoi.cs *
+// * * START:                                       rsdb_big.cs *
 // * ************************************************************
 
 // * ************************************************************
 // *                      INFORMATIONS
 // * ************************************************************
-// * EMOI class for the library.
-// * emoi.cs
+// * RSDB_BIG class for the library.
+// * rsdb_big.cs
 // * 
 // * --
 // *
@@ -16,7 +16,7 @@
 // * ************************************************************
 // *                      CREDITS
 // * ************************************************************
-// * Originally created by CptSky (January 22th, 2012)
+// * Originally created by CptSky (March 12th, 2012)
 // * Copyright (C) 2012 CptSky
 // *
 // * ************************************************************
@@ -30,14 +30,12 @@ using System.Runtime.InteropServices;
 namespace CO2_CORE_DLL.IO.DBC
 {
     /// <summary>
-    /// DBC / EMOI
-    /// Files: EmotionIco
+    /// DBC / RSDB_BIG
+    /// Files: 3DMotion, ArmetMotion, ArmorMotion, HeadMotion, MiscMotion, MountMotion, WeaponMotion
     /// </summary>
-    public unsafe class EMOI
+    public unsafe class RSDB_BIG
     {
-        public const Int32 MAX_NAMESIZE = 0x20;
-
-        private const Int32 EMOI_IDENTIFIER = 0x494F4D45;
+        private const Int32 RSDB_BIG_IDENTIFIER = 0x42445352;
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Header
@@ -47,23 +45,24 @@ namespace CO2_CORE_DLL.IO.DBC
         };
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct Entry
+        private struct Entry
         {
-            public Int32 ID;
-            public fixed Byte Name[MAX_NAMESIZE];
+            public UInt64 UniqId;
+            public UInt32 Offset;
+            public fixed Byte Path[1];
         };
 
-        private Dictionary<Int32, IntPtr> Entries = null;
+        private Dictionary<UInt64, IntPtr> Entries = null;
 
         /// <summary>
-        /// Create a new EMOI instance to handle the TQ's EMOI file.
+        /// Create a new RSDB_BIG instance to handle the TQ's RSDB_BIG file.
         /// </summary>
-        public EMOI()
+        public RSDB_BIG()
         {
-            this.Entries = new Dictionary<Int32, IntPtr>();
+            this.Entries = new Dictionary<UInt64, IntPtr>();
         }
 
-        ~EMOI()
+        ~RSDB_BIG()
         {
             Clear();
         }
@@ -85,7 +84,7 @@ namespace CO2_CORE_DLL.IO.DBC
         }
 
         /// <summary>
-        /// Load the specified EMOI file (in binary format) into the dictionary.
+        /// Load the specified RSDB_BIG file (in binary format) into the dictionary.
         /// </summary>
         public void LoadFromDat(String Path)
         {
@@ -101,20 +100,40 @@ namespace CO2_CORE_DLL.IO.DBC
                     Stream.Read(Buffer, 0, sizeof(Header));
                     Kernel.memcpy(pHeader, Buffer, sizeof(Header));
 
-                    if (pHeader->Identifier != EMOI_IDENTIFIER)
+                    if (pHeader->Identifier != RSDB_BIG_IDENTIFIER)
                     {
                         Kernel.free(pHeader);
-                        throw new Exception("Invalid EMOI Header in file: " + Path);
+                        throw new Exception("Invalid RSDB_BIG Header in file: " + Path);
                     }
 
+                    Int64 Address = 0;
+                    Console.WriteLine(pHeader->Amount);
                     for (Int32 i = 0; i < pHeader->Amount; i++)
                     {
-                        Entry* pEntry = (Entry*)Kernel.malloc(sizeof(Entry));
-                        Stream.Read(Buffer, 0, sizeof(Entry));
-                        Kernel.memcpy(pEntry, Buffer, sizeof(Entry));
+                        Console.Write("\r{0}", (Int32)((Double)(i + 1) / (Double)pHeader->Amount * 100.0));
+                        Entry* pEntry = (Entry*)Kernel.calloc(sizeof(Entry));
+                        Stream.Read(Buffer, 0, sizeof(Entry) - 1);
+                        Kernel.memcpy(pEntry, Buffer, sizeof(Entry) - 1);
 
-                        if (!Entries.ContainsKey(pEntry->ID))
-                            Entries.Add(pEntry->ID, (IntPtr)pEntry);
+                        Address = Stream.Position;
+                        Stream.Seek(pEntry->Offset, SeekOrigin.Begin);
+
+                        StringBuilder Builder = new StringBuilder(Kernel.MAX_BUFFER_SIZE);
+                        Int32 Read = Stream.ReadByte();
+                        while (Read != '\0')
+                        {
+                            Builder.Append((Char)Read);
+                            Read = Stream.ReadByte();
+                        }
+                        Builder.Append('\0');
+                        Stream.Seek(Address, SeekOrigin.Begin);
+
+                        Byte* pPath = Builder.ToString().ToPointer();
+                        pEntry = (Entry*)Kernel.realloc(pEntry, sizeof(Entry) + Kernel.strlen(pPath));
+                        Kernel.memcpy(pEntry->Path, pPath, Kernel.strlen(pPath) + 1);
+
+                        if (!Entries.ContainsKey(pEntry->UniqId))
+                            Entries.Add(pEntry->UniqId, (IntPtr)pEntry);
                     }
                     Kernel.free(pHeader);
                 }
@@ -122,7 +141,7 @@ namespace CO2_CORE_DLL.IO.DBC
         }
 
         /// <summary>
-        /// Load the specified EMOI file (in plain format) into the dictionary.
+        /// Load the specified RSDB_BIG file (in plain format) into the dictionary.
         /// </summary>
         public void LoadFromTxt(String Path)
         {
@@ -130,37 +149,33 @@ namespace CO2_CORE_DLL.IO.DBC
 
             lock (Entries)
             {
+                Ini Ini = new Ini(Path);
                 using (StreamReader Stream = new StreamReader(Path, Encoding.GetEncoding("Windows-1252")))
                 {
                     String Line = null;
-                    Int32 LineC = 0;
                     while ((Line = Stream.ReadLine()) != null)
                     {
-                        LineC++;
+                        String[] Parts = Line.Split('=');
+                        if (Parts.Length != 2)
+                            continue;
 
-                        String[] Parts = Line.Split(' ');
-                        Entry* pEntry = (Entry*)Kernel.calloc(sizeof(Entry));
+                        UInt64 UniqId = UInt64.Parse(Parts[0]);
+                        Byte* pPath = (Parts[1].TrimEnd(new Char[] { ' ', '\t', '\0' }) + "\0").ToPointer();
 
-                        try
-                        {
-                            pEntry->ID = Int32.Parse(Parts[0]);
-                            Kernel.memcpy(pEntry->Name, Parts[1].ToPointer(), Math.Min(MAX_NAMESIZE - 1, Parts[1].Length));
+                        Entry* pEntry = (Entry*)Kernel.calloc(sizeof(Entry) + Kernel.strlen(pPath));
+                        pEntry->UniqId = UniqId;
+                        pEntry->Offset = 0;
+                        Kernel.memcpy(pEntry->Path, pPath, Kernel.strlen(pPath) + 1);
 
-                            if (!Entries.ContainsKey(pEntry->ID))
-                                Entries.Add(pEntry->ID, (IntPtr)pEntry);
-                        }
-                        catch (Exception Exc)
-                        {
-                            Console.WriteLine("Error at line {0}.\n{1}", LineC, Exc);
-                            Kernel.free(pEntry);
-                        }
+                        if (!Entries.ContainsKey(pEntry->UniqId))
+                            Entries.Add(pEntry->UniqId, (IntPtr)pEntry);
                     }
                 }
             }
         }
 
         /// <summary>
-        /// Save all the dictionary to the specified EMOI file (in binary format).
+        /// Save all the dictionary to the specified RSDB_BIG file (in binary format).
         /// </summary>
         public void SaveToDat(String Path)
         {
@@ -176,23 +191,39 @@ namespace CO2_CORE_DLL.IO.DBC
                 }
 
                 Header* pHeader = (Header*)Kernel.malloc(sizeof(Header));
-                pHeader->Identifier = EMOI_IDENTIFIER;
+                pHeader->Identifier = RSDB_BIG_IDENTIFIER;
                 pHeader->Amount = Pointers.Length;
 
                 Kernel.memcpy(Buffer, pHeader, sizeof(Header));
                 Stream.Write(Buffer, 0, sizeof(Header));
 
+                UInt32 Offset = (UInt32)(sizeof(Header) + (pHeader->Amount * (sizeof(Entry) - 1)));
                 for (Int32 i = 0; i < Pointers.Length; i++)
                 {
-                    Kernel.memcpy(Buffer, (Entry*)Pointers[i], sizeof(Entry));
-                    Stream.Write(Buffer, 0, sizeof(Entry));
+                    Entry* pEntry = (Entry*)Pointers[i];
+                    pEntry->Offset = Offset;
+                    Offset += (UInt32)Kernel.strlen(pEntry->Path) + 1;
+                }
+
+                for (Int32 i = 0; i < Pointers.Length; i++)
+                {
+                    Entry* pEntry = (Entry*)Pointers[i];
+                    Kernel.memcpy(Buffer, pEntry, sizeof(Entry) - 1);
+                    Stream.Write(Buffer, 0, sizeof(Entry) - 1);
+                }
+
+                for (Int32 i = 0; i < Pointers.Length; i++)
+                {
+                    Entry* pEntry = (Entry*)Pointers[i];
+                    Kernel.memcpy(Buffer, pEntry->Path, Kernel.strlen(pEntry->Path) + 1);
+                    Stream.Write(Buffer, 0, Kernel.strlen(pEntry->Path) + 1);
                 }
                 Kernel.free(pHeader);
             }
         }
 
         /// <summary>
-        /// Save all the dictionary to the specified EMOI file (in plain format).
+        /// Save all the dictionary to the specified RSDB_BIG file (in plain format).
         /// </summary>
         public void SaveToTxt(String Path)
         {
@@ -209,11 +240,7 @@ namespace CO2_CORE_DLL.IO.DBC
                 for (Int32 i = 0; i < Pointers.Length; i++)
                 {
                     Entry* pEntry = (Entry*)Pointers[i];
-
-                    StringBuilder Builder = new StringBuilder(Kernel.MAX_BUFFER_SIZE);
-                    Builder.Append(pEntry->ID + " ");
-                    Builder.Append(Kernel.cstring(pEntry->Name, MAX_NAMESIZE));
-                    Stream.WriteLine(Builder.ToString());
+                    Stream.WriteLine("{0}={1}", pEntry->UniqId, Kernel.cstring(pEntry->Path, Kernel.strlen(pEntry->Path) + 1));
                 }
             }
         }
@@ -221,5 +248,5 @@ namespace CO2_CORE_DLL.IO.DBC
 }
 
 // * ************************************************************
-// * * END:                                             emoi.cs *
+// * * END:                                         rsdb_big.cs *
 // * ************************************************************

@@ -30,6 +30,7 @@ namespace CO2_CORE_DLL
     {
         /// <summary>
         /// Get a pointer to the Windows-1252 encoded string.
+        /// It will not create a null-terminating string...
         /// </summary>
         public static Byte* ToPointer(this String Str)
         {

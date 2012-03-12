@@ -38,12 +38,12 @@ namespace CO2_CORE_DLL.IO
         public const Int32 MAX_DESCSIZE = 128;
 
         //Item monopoly bit field
-        public const Int32 ITEM_MONOPOLY_MASK				= 0x01;
-        public const Int32 ITEM_STORAGE_MASK				= 0x02;
-        public const Int32 ITEM_DROP_HINT_MASK				= 0x04;
-        public const Int32 ITEM_SELL_HINT_MASK				= 0x08;
-        public const Int32 ITEM_NEVER_DROP_WHEN_DEAD_MASK	= 0x10;
-        public const Int32 ITEM_SELL_DISABLE_MASK			= 0x20;
+        public const Int32 ITEM_MONOPOLY_MASK = 0x01;
+        public const Int32 ITEM_STORAGE_MASK = 0x02;
+        public const Int32 ITEM_DROP_HINT_MASK = 0x04;
+        public const Int32 ITEM_SELL_HINT_MASK = 0x08;
+        public const Int32 ITEM_NEVER_DROP_WHEN_DEAD_MASK = 0x10;
+        public const Int32 ITEM_SELL_DISABLE_MASK = 0x20;
 
         //Item status bit field
         public const Int32 ITEM_STATUS_NONE = 0;
@@ -325,10 +325,67 @@ namespace CO2_CORE_DLL.IO
         }
 
         /// <summary>
+        /// Get the number of key/value pairs contained in the dictionary.
+        /// </summary>
+        public Int32 Count { get { return Entries.Count; } }
+
+        /// <summary>
+        /// Get an array containing the keys of the dictionary.
+        /// </summary>
+        public Int32[] Keys
+        {
+            get
+            {
+                lock (Entries)
+                {
+                    Int32[] Keys = new Int32[Entries.Count];
+                    Entries.Keys.CopyTo(Keys, 0);
+                    return Keys;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get an array containing the values of the dictionary.
+        /// </summary>
+        public Entry[] Values
+        {
+            get
+            {
+                lock (Entries)
+                {
+                    Entry[] Values = new Entry[Entries.Count];
+
+                    Int32 i = 0;
+                    foreach (IntPtr Ptr in Entries.Values)
+                    {
+                        fixed (Entry* pEntry = &Values[i])
+                            Kernel.memcpy(pEntry, (Entry*)Ptr, sizeof(Entry));
+                        i++;
+                    }
+                    return Values;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determine whether the dictionary contains the specified key.
+        /// </summary>
+        public Boolean ContainsKey(Int32 ID)
+        {
+            lock (Entries)
+            {
+                if (Entries.ContainsKey(ID))
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Get the information of the specified type for the specified item.
         /// To get a valid string for some fields, use Kernel.cstring function.
         /// </summary>
-        public Boolean GetItemTypeInfo(Int32 ID, ref Entry Entry)
+        public Boolean TryGetValue(Int32 ID, out Entry Entry)
         {
             Entry = new Entry();
             lock (Entries)
@@ -347,7 +404,7 @@ namespace CO2_CORE_DLL.IO
         /// Add the item's information in the dictionary.
         /// It can be used to create an editor or an temp item.
         /// </summary>
-        public Boolean AddItemTypeInfo(Entry Entry)
+        public Boolean Add(Entry Entry)
         {
             lock (Entries)
             {
@@ -366,7 +423,7 @@ namespace CO2_CORE_DLL.IO
         /// <summary>
         /// Delete the item's information in the dictionary.
         /// </summary>
-        public Boolean DelItemTypeInfo(Int32 ID)
+        public Boolean Remove(Int32 ID)
         {
             lock (Entries)
             {
@@ -382,7 +439,7 @@ namespace CO2_CORE_DLL.IO
         /// <summary>
         /// Update the item's information in the dictionary.
         /// </summary>
-        public Boolean UpdItemTypeInfo(Int32 ID, Entry Entry)
+        public Boolean Update(Int32 ID, Entry Entry)
         {
             lock (Entries)
             {

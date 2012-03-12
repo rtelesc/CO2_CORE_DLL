@@ -34,29 +34,35 @@ namespace CO2_CORE_DLL.IO
     /// </summary>
     public unsafe class MagicType
     {
+        public const Int32 MAX_NAMESIZE = 0x10;
+        public const Int32 MAX_DESCSIZE = 0x40;
+        public const Int32 MAX_DESCEXSIZE = 0x100;
+        public const Int32 MAX_EFFECTSIZE = 0x40;
+        public const Int32 MAX_SOUNDSIZE = 0x104;
+
         //Constants for magic's action sort field.
         public const UInt32 MAGIC_SORT_ATTACK_SINGLE_HP			= 1;
-        public const UInt32 MAGIC_SORT_RECOVER_SINGLE_HP		= 2;
+        public const UInt32 MAGIC_SORT_RECOVER_SINGLE_HP		    = 2;
         public const UInt32 MAGIC_SORT_ATTACK_CROSS_HP			= 3;
         public const UInt32 MAGIC_SORT_ATTACK_SECTOR_HP			= 4;
         public const UInt32 MAGIC_SORT_ATTACK_ROUND_HP			= 5;
         public const UInt32 MAGIC_SORT_ATTACK_SINGLE_STATUS		= 6;
-        public const UInt32 MAGIC_SORT_RECOVER_SINGLE_STATUS	= 7;
+        public const UInt32 MAGIC_SORT_RECOVER_SINGLE_STATUS	    = 7;
         public const UInt32 MAGIC_SORT_SQUARE					= 8;
         public const UInt32 MAGIC_SORT_JUMPATTACK				= 9;
         public const UInt32 MAGIC_SORT_RANDOMTRANS				= 10;
         public const UInt32 MAGIC_SORT_DISPATCHXP				= 11;
         public const UInt32 MAGIC_SORT_COLLIDE					= 12;
-        public const UInt32 MAGIC_SORT_SERIALCUT				= 13;
+        public const UInt32 MAGIC_SORT_SERIALCUT				    = 13;
         public const UInt32 MAGIC_SORT_LINE						= 14;
         public const UInt32 MAGIC_SORT_ATKRANGE					= 15;
-        public const UInt32 MAGIC_SORT_ATKSTATUS				= 16;
+        public const UInt32 MAGIC_SORT_ATKSTATUS				    = 16;
         public const UInt32 MAGIC_SORT_CALL_TEAMMEMBER			= 17;
         public const UInt32 MAGIC_SORT_RECORDTRANSSPELL			= 18;	// record map position to trans spell.
-        public const UInt32 MAGIC_SORT_TRANSFORM				= 19;
+        public const UInt32 MAGIC_SORT_TRANSFORM				    = 19;
         public const UInt32 MAGIC_SORT_ADDMANA					= 20;	// support self target only.
         public const UInt32 MAGIC_SORT_LAYTRAP					= 21;
-        public const UInt32 MAGIC_SORT_DANCE					= 22;
+        public const UInt32 MAGIC_SORT_DANCE					    = 22;
         public const UInt32 MAGIC_SORT_CALLPET			        = 23;
         public const UInt32 MAGIC_SORT_VAMPIRE			        = 24;	//power is percent award. use for call pet
         public const UInt32 MAGIC_SORT_INSTEAD			        = 25;	//use for call pet
@@ -65,10 +71,10 @@ namespace CO2_CORE_DLL.IO
         public const UInt32 MAGIC_SORT_REBORN			        = 28;
         public const UInt32 MAGIC_SORT_TEAM_MAGIC		        = 29;
         public const UInt32 MAGIC_SORT_BOMB_LOCKALL		        = 30;
-        public const UInt32 MAGIC_SORT_SORB_SOUL			    = 31;
-        public const UInt32 MAGIC_SORT_STEAL				    = 32;
+        public const UInt32 MAGIC_SORT_SORB_SOUL			        = 31;
+        public const UInt32 MAGIC_SORT_STEAL				        = 32;
         public const UInt32 MAGIC_SORT_LINE_PENETRABLE	        = 33;
-        public const UInt32 MAGIC_SORT_BLAST_THUNDER			= 34;
+        public const UInt32 MAGIC_SORT_BLAST_THUNDER			    = 34;
         public const UInt32 MAGIC_SORT_MULTI_ATTACHSTATUS	    = 35;
         public const UInt32 MAGIC_SORT_MULTI_DETACHSTATUS	    = 36;
         public const UInt32 MAGIC_SORT_MULTI_CURE			    = 37;
@@ -79,16 +85,16 @@ namespace CO2_CORE_DLL.IO
         public const UInt32 MAGIC_SORT_ATTRACK_MONSTER		    = 42;
 
         //Constants for magic's target field.
-        public const UInt32 MAGIC_TARGET_SELF		  = 0x00000001;
-        public const UInt32 MAGIC_TARGET_NONE		  = 0x00000002;
-        public const UInt32 MAGIC_TARGET_TERRAIN      = 0x00000004;
-        public const UInt32 MAGIC_PASSIVE			  = 0x00000008;
-        public const UInt32 MAGIC_TARGET_BODY		  = 0x00000010;
+        public const UInt32 MAGIC_TARGET_SELF		    = 0x00000001;
+        public const UInt32 MAGIC_TARGET_NONE		    = 0x00000002;
+        public const UInt32 MAGIC_TARGET_TERRAIN         = 0x00000004;
+        public const UInt32 MAGIC_PASSIVE			    = 0x00000008;
+        public const UInt32 MAGIC_TARGET_BODY		    = 0x00000010;
 
         //Constants for magic's xp field.
         public const UInt32 TYPE_MAGIC		= 0;
-        public const UInt32 TYPE_XPSKILL	= 1;
-        public const UInt32 TYPE_KONGFU     = 2;
+        public const UInt32 TYPE_XPSKILL	    = 1;
+        public const UInt32 TYPE_KONGFU      = 2;
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         private struct Header
@@ -102,7 +108,7 @@ namespace CO2_CORE_DLL.IO
         {
             public Int32 MagicType;
             public UInt32 ActionSort;
-            public fixed Byte Name[0x10];
+            public fixed Byte Name[MAX_NAMESIZE];
             public UInt32 Crime;
             public UInt32 Ground;
             public UInt32 Multi;
@@ -134,17 +140,17 @@ namespace CO2_CORE_DLL.IO
             public UInt32 Delay;
             public UInt32 UseItemNum;
             public UInt32 SenderAction;
-            public fixed Byte Desc[0x40];
-            public fixed Byte DescEx[0x100];
-            public fixed Byte IntoneEffect[0x40];
-            public fixed Byte IntoneSound[0x104];
-            public fixed Byte SenderEffect[0x40];
-            public fixed Byte SenderSound[0x104];
+            public fixed Byte Desc[MAX_DESCSIZE];
+            public fixed Byte DescEx[MAX_DESCEXSIZE];
+            public fixed Byte IntoneEffect[MAX_EFFECTSIZE];
+            public fixed Byte IntoneSound[MAX_SOUNDSIZE];
+            public fixed Byte SenderEffect[MAX_EFFECTSIZE];
+            public fixed Byte SenderSound[MAX_SOUNDSIZE];
             public UInt32 TargetDelay;
-            public fixed Byte TargetEffect[0x40];
-            public fixed Byte TargetSound[0x104];
-            public fixed Byte GroundEffect[0x40];
-            public fixed Byte TraceEffect[0x40];
+            public fixed Byte TargetEffect[MAX_EFFECTSIZE];
+            public fixed Byte TargetSound[MAX_SOUNDSIZE];
+            public fixed Byte GroundEffect[MAX_EFFECTSIZE];
+            public fixed Byte TraceEffect[MAX_EFFECTSIZE];
             public UInt32 ScreenRepresent;
             public UInt32 CanBeusedInMarket;
             public UInt32 TargetWoundDelay;
@@ -376,7 +382,7 @@ namespace CO2_CORE_DLL.IO
                     StringBuilder Builder = new StringBuilder(Kernel.MAX_BUFFER_SIZE);
                     Builder.Append(pEntry->MagicType + " ");
                     Builder.Append(pEntry->ActionSort + " ");
-                    Builder.Append(Kernel.cstring(pEntry->Name, 0x10) + " ");
+                    Builder.Append(Kernel.cstring(pEntry->Name, MAX_NAMESIZE) + " ");
                     Builder.Append(pEntry->Crime + " ");
                     Builder.Append(pEntry->Ground + " ");
                     Builder.Append(pEntry->Multi + " ");
@@ -408,17 +414,17 @@ namespace CO2_CORE_DLL.IO
                     Builder.Append(pEntry->Delay + " ");
                     Builder.Append(pEntry->UseItemNum + " ");
                     Builder.Append(pEntry->SenderAction + " ");
-                    Builder.Append(Kernel.cstring(pEntry->Desc, 0x40) + " ");
-                    Builder.Append(Kernel.cstring(pEntry->DescEx, 0x100) + " ");
-                    Builder.Append(Kernel.cstring(pEntry->IntoneEffect, 0x40) + " ");
-                    Builder.Append(Kernel.cstring(pEntry->IntoneSound, 0x104) + " ");
-                    Builder.Append(Kernel.cstring(pEntry->SenderEffect, 0x40) + " ");
-                    Builder.Append(Kernel.cstring(pEntry->SenderSound, 0x104) + " ");
+                    Builder.Append(Kernel.cstring(pEntry->Desc, MAX_DESCSIZE) + " ");
+                    Builder.Append(Kernel.cstring(pEntry->DescEx, MAX_DESCEXSIZE) + " ");
+                    Builder.Append(Kernel.cstring(pEntry->IntoneEffect, MAX_EFFECTSIZE) + " ");
+                    Builder.Append(Kernel.cstring(pEntry->IntoneSound, MAX_SOUNDSIZE) + " ");
+                    Builder.Append(Kernel.cstring(pEntry->SenderEffect, MAX_EFFECTSIZE) + " ");
+                    Builder.Append(Kernel.cstring(pEntry->SenderSound, MAX_SOUNDSIZE) + " ");
                     Builder.Append(pEntry->TargetDelay + " ");
-                    Builder.Append(Kernel.cstring(pEntry->TargetEffect, 0x40) + " ");
-                    Builder.Append(Kernel.cstring(pEntry->TargetSound, 0x104) + " ");
-                    Builder.Append(Kernel.cstring(pEntry->GroundEffect, 0x40) + " ");
-                    Builder.Append(Kernel.cstring(pEntry->TraceEffect, 0x40) + " ");
+                    Builder.Append(Kernel.cstring(pEntry->TargetEffect, MAX_EFFECTSIZE) + " ");
+                    Builder.Append(Kernel.cstring(pEntry->TargetSound, MAX_SOUNDSIZE) + " ");
+                    Builder.Append(Kernel.cstring(pEntry->GroundEffect, MAX_EFFECTSIZE) + " ");
+                    Builder.Append(Kernel.cstring(pEntry->TraceEffect, MAX_EFFECTSIZE) + " ");
                     Builder.Append(pEntry->ScreenRepresent + " ");
                     Builder.Append(pEntry->CanBeusedInMarket + " ");
                     Builder.Append(pEntry->TargetWoundDelay);
@@ -428,18 +434,79 @@ namespace CO2_CORE_DLL.IO
         }
 
         /// <summary>
+        /// Generate the UniqId of the specified magic.
+        /// </summary>
+        public Int32 GenUID(Entry Entry) { return (Int32)((Entry.MagicType * 10) + Entry.Level); }
+
+        /// <summary>
+        /// Generate the UniqId of the specified magic.
+        /// </summary>
+        public Int32 GenUID(Int32 MagicType, UInt32 Level) { return (Int32)((MagicType * 10) + Level); }
+
+        /// <summary>
+        /// Get the number of key/value pairs contained in the dictionary.
+        /// </summary>
+        public Int32 Count { get { return Entries.Count; } }
+
+        /// <summary>
+        /// Get an array containing the keys of the dictionary.
+        /// </summary>
+        public Int32[] Keys
+        { get { 
+            lock (Entries)
+            {
+                Int32[] Keys = new Int32[Entries.Count];
+                Entries.Keys.CopyTo(Keys, 0);
+                return Keys;
+            }
+        } }
+
+        /// <summary>
+        /// Get an array containing the values of the dictionary.
+        /// </summary>
+        public Entry[] Values
+        { get {
+            lock (Entries)
+            {
+                Entry[] Values = new Entry[Entries.Count];
+
+                Int32 i = 0;
+                foreach (IntPtr Ptr in Entries.Values)
+                {
+                    fixed (Entry* pEntry = &Values[i])
+                        Kernel.memcpy(pEntry, (Entry*)Ptr, sizeof(Entry));
+                    i++;
+                }
+                return Values;
+            }
+        } }
+
+        /// <summary>
+        /// Determine whether the dictionary contains the specified key.
+        /// </summary>
+        public Boolean ContainsKey(Int32 UniqId)
+        {
+            lock (Entries)
+            {
+                if (Entries.ContainsKey(UniqId))
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Get the information of the specified type for the specified level.
         /// To get a valid string for some fields, use Kernel.cstring function.
         /// </summary>
-        public Boolean GetMagicTypeInfo(Int32 MagicType, UInt32 Level, ref Entry Entry)
+        public Boolean TryGetValue(Int32 UniqId, out Entry Entry)
         {
             Entry = new Entry();
             lock (Entries)
             {
-                if (Entries.ContainsKey((Int32)((MagicType * 10) + Level)))
+                if (Entries.ContainsKey(UniqId))
                 {
                     fixed (Entry* pEntry = &Entry)
-                        Kernel.memcpy(pEntry, (Entry*)Entries[(Int32)((MagicType * 10) + Level)], sizeof(Entry));
+                        Kernel.memcpy(pEntry, (Entry*)Entries[UniqId], sizeof(Entry));
                     return true;
                 }
             }
@@ -450,7 +517,7 @@ namespace CO2_CORE_DLL.IO
         /// Add the magic's information in the dictionary.
         /// It can be used to create an editor or an temp magic.
         /// </summary>
-        public Boolean AddMagicTypeInfo(Entry Entry)
+        public Boolean Add(Entry Entry)
         {
             lock (Entries)
             {
@@ -469,13 +536,13 @@ namespace CO2_CORE_DLL.IO
         /// <summary>
         /// Delete the magic's information in the dictionary.
         /// </summary>
-        public Boolean DelMagicTypeInfo(Int32 MagicType, UInt32 Level)
+        public Boolean Remove(Int32 UniqId)
         {
             lock (Entries)
             {
-                if (Entries.ContainsKey((Int32)((MagicType * 10) + Level)))
+                if (Entries.ContainsKey(UniqId))
                 {
-                    Entries.Remove((Int32)((MagicType * 10) + Level));
+                    Entries.Remove(UniqId);
                     return true;
                 }
             }
@@ -485,13 +552,13 @@ namespace CO2_CORE_DLL.IO
         /// <summary>
         /// Update the magic's information in the dictionary.
         /// </summary>
-        public Boolean UpdMagicTypeInfo(Int32 MagicType, UInt32 Level, Entry Entry)
+        public Boolean Update(Int32 UniqId, Entry Entry)
         {
             lock (Entries)
             {
-                if (Entries.ContainsKey((Int32)((Entry.MagicType * 10) + Entry.Level)))
+                if (Entries.ContainsKey(UniqId))
                 {
-                    Kernel.memcpy((Entry*)Entries[(Int32)((Entry.MagicType * 10) + Entry.Level)], &Entry, sizeof(Entry));
+                    Kernel.memcpy((Entry*)Entries[UniqId], &Entry, sizeof(Entry));
                     return true;
                 }
             }

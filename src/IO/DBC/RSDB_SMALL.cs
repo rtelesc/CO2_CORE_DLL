@@ -1,12 +1,12 @@
 ﻿// * ************************************************************
-// * * START:                                          matr.cs *
+// * * START:                                     rsdb_small.cs *
 // * ************************************************************
 
 // * ************************************************************
 // *                      INFORMATIONS
 // * ************************************************************
-// * MATR class for the library.
-// * matr.cs
+// * RSDB_SMALL class for the library.
+// * rsdb_small.cs
 // * 
 // * --
 // *
@@ -16,7 +16,7 @@
 // * ************************************************************
 // *                      CREDITS
 // * ************************************************************
-// * Originally created by CptSky (January 22th, 2012)
+// * Originally created by CptSky (March 12th, 2012)
 // * Copyright (C) 2012 CptSky
 // *
 // * ************************************************************
@@ -30,14 +30,12 @@ using System.Runtime.InteropServices;
 namespace CO2_CORE_DLL.IO.DBC
 {
     /// <summary>
-    /// DBC / MATR
-    /// Files: Material
+    /// DBC / RSDB_SMALL
+    /// Files: 3DEffectObj, 3DObj, Sound
     /// </summary>
-    public unsafe class MATR
+    public unsafe class RSDB_SMALL
     {
-        public const Int32 MAX_NAMESIZE = 0x20;
-
-        private const Int32 MATR_IDENTIFIER = 0x5254414D;
+        private const Int32 RSDB_SMALL_IDENTIFIER = 0x42445352;
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Header
@@ -47,27 +45,24 @@ namespace CO2_CORE_DLL.IO.DBC
         };
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct Entry
+        private struct Entry
         {
-            public fixed Byte Name[MAX_NAMESIZE];
-            public UInt32 Param0;
-            public UInt32 Param1;
-            public UInt32 Param2;
-            public UInt32 Param3;
-            public UInt32 Param4;
+            public UInt32 UniqId;
+            public UInt32 Offset;
+            public fixed Byte Path[1];
         };
 
-        private List<IntPtr> Entries = null;
+        private Dictionary<UInt32, IntPtr> Entries = null;
 
         /// <summary>
-        /// Create a new MATR instance to handle the TQ's MATR file.
+        /// Create a new RSDB_SMALL instance to handle the TQ's RSDB_SMALL file.
         /// </summary>
-        public MATR()
+        public RSDB_SMALL()
         {
-            this.Entries = new List<IntPtr>();
+            this.Entries = new Dictionary<UInt32, IntPtr>();
         }
 
-        ~MATR()
+        ~RSDB_SMALL()
         {
             Clear();
         }
@@ -81,7 +76,7 @@ namespace CO2_CORE_DLL.IO.DBC
             {
                 lock (Entries)
                 {
-                    foreach (IntPtr Ptr in Entries)
+                    foreach (IntPtr Ptr in Entries.Values)
                         Kernel.free((Entry*)Ptr);
                 }
                 Entries.Clear();
@@ -89,7 +84,7 @@ namespace CO2_CORE_DLL.IO.DBC
         }
 
         /// <summary>
-        /// Load the specified MATR file (in binary format) into the dictionary.
+        /// Load the specified RSDB_SMALL file (in binary format) into the dictionary.
         /// </summary>
         public void LoadFromDat(String Path)
         {
@@ -105,19 +100,38 @@ namespace CO2_CORE_DLL.IO.DBC
                     Stream.Read(Buffer, 0, sizeof(Header));
                     Kernel.memcpy(pHeader, Buffer, sizeof(Header));
 
-                    if (pHeader->Identifier != MATR_IDENTIFIER)
+                    if (pHeader->Identifier != RSDB_SMALL_IDENTIFIER)
                     {
                         Kernel.free(pHeader);
-                        throw new Exception("Invalid MATR Header in file: " + Path);
+                        throw new Exception("Invalid RSDB_SMALL Header in file: " + Path);
                     }
 
+                    Int64 Address = 0;
                     for (Int32 i = 0; i < pHeader->Amount; i++)
                     {
-                        Entry* pEntry = (Entry*)Kernel.malloc(sizeof(Entry));
-                        Stream.Read(Buffer, 0, sizeof(Entry));
-                        Kernel.memcpy(pEntry, Buffer, sizeof(Entry));
+                        Entry* pEntry = (Entry*)Kernel.calloc(sizeof(Entry));
+                        Stream.Read(Buffer, 0, sizeof(Entry) - 1);
+                        Kernel.memcpy(pEntry, Buffer, sizeof(Entry) -1);
 
-                        Entries.Add((IntPtr)pEntry);
+                        Address = Stream.Position;
+                        Stream.Seek(pEntry->Offset, SeekOrigin.Begin);
+
+                        StringBuilder Builder = new StringBuilder(Kernel.MAX_BUFFER_SIZE);
+                        Int32 Read = Stream.ReadByte();
+                        while (Read != '\0')
+                        {
+                            Builder.Append((Char)Read);
+                            Read = Stream.ReadByte();
+                        }
+                        Builder.Append('\0');
+                        Stream.Seek(Address, SeekOrigin.Begin);
+
+                        Byte* pPath = Builder.ToString().ToPointer();
+                        pEntry = (Entry*)Kernel.realloc(pEntry, sizeof(Entry) + Kernel.strlen(pPath));
+                        Kernel.memcpy(pEntry->Path, pPath, Kernel.strlen(pPath) + 1);
+
+                        if (!Entries.ContainsKey(pEntry->UniqId))
+                            Entries.Add(pEntry->UniqId, (IntPtr)pEntry);
                     }
                     Kernel.free(pHeader);
                 }
@@ -125,7 +139,7 @@ namespace CO2_CORE_DLL.IO.DBC
         }
 
         /// <summary>
-        /// Load the specified MATR file (in plain format) into the dictionary.
+        /// Load the specified RSDB_SMALL file (in plain format) into the dictionary.
         /// </summary>
         public void LoadFromTxt(String Path)
         {
@@ -133,45 +147,33 @@ namespace CO2_CORE_DLL.IO.DBC
 
             lock (Entries)
             {
+                Ini Ini = new Ini(Path);
                 using (StreamReader Stream = new StreamReader(Path, Encoding.GetEncoding("Windows-1252")))
                 {
                     String Line = null;
-                    Int32 LineC = 0;
                     while ((Line = Stream.ReadLine()) != null)
                     {
-                        if (LineC == 0) //material = X
-                        {
-                            LineC++;
+                        String[] Parts = Line.Split('=');
+                        if (Parts.Length != 2)
                             continue;
-                        }
-                        LineC++;
 
-                        String[] Parts = Line.Split(' ');
-                        Entry* pEntry = (Entry*)Kernel.calloc(sizeof(Entry));
+                        UInt32 UniqId = UInt32.Parse(Parts[0]);
+                        Byte* pPath = (Parts[1].TrimEnd(new Char[] { ' ', '\t', '\0' }) + "\0").ToPointer();
 
-                        try
-                        {
-                            Kernel.memcpy(pEntry->Name, Parts[0].ToPointer(), Math.Min(MAX_NAMESIZE - 1, Parts[0].Length));
-                            pEntry->Param0 = UInt32.Parse(Parts[1], System.Globalization.NumberStyles.HexNumber);
-                            pEntry->Param1 = UInt32.Parse(Parts[2], System.Globalization.NumberStyles.HexNumber);
-                            pEntry->Param2 = UInt32.Parse(Parts[3], System.Globalization.NumberStyles.HexNumber);
-                            pEntry->Param3 = UInt32.Parse(Parts[4], System.Globalization.NumberStyles.HexNumber);
-                            pEntry->Param4 = UInt32.Parse(Parts[5], System.Globalization.NumberStyles.HexNumber);
+                        Entry* pEntry = (Entry*)Kernel.calloc(sizeof(Entry) + Kernel.strlen(pPath));
+                        pEntry->UniqId = UniqId;
+                        pEntry->Offset = 0;
+                        Kernel.memcpy(pEntry->Path, pPath, Kernel.strlen(pPath) + 1);
 
-                            Entries.Add((IntPtr)pEntry);
-                        }
-                        catch (Exception Exc)
-                        {
-                            Console.WriteLine("Error at line {0}.\n{1}", LineC, Exc);
-                            Kernel.free(pEntry);
-                        }
+                        if (!Entries.ContainsKey(pEntry->UniqId))
+                            Entries.Add(pEntry->UniqId, (IntPtr)pEntry);
                     }
                 }
             }
         }
 
         /// <summary>
-        /// Save all the dictionary to the specified MATR file (in binary format).
+        /// Save all the dictionary to the specified RSDB_SMALL file (in binary format).
         /// </summary>
         public void SaveToDat(String Path)
         {
@@ -183,27 +185,43 @@ namespace CO2_CORE_DLL.IO.DBC
                 lock (Entries)
                 {
                     Pointers = new IntPtr[Entries.Count];
-                    Entries.CopyTo(Pointers, 0);
+                    Entries.Values.CopyTo(Pointers, 0);
                 }
 
                 Header* pHeader = (Header*)Kernel.malloc(sizeof(Header));
-                pHeader->Identifier = MATR_IDENTIFIER;
+                pHeader->Identifier = RSDB_SMALL_IDENTIFIER;
                 pHeader->Amount = Pointers.Length;
 
                 Kernel.memcpy(Buffer, pHeader, sizeof(Header));
                 Stream.Write(Buffer, 0, sizeof(Header));
 
+                UInt32 Offset = (UInt32)(sizeof(Header) + (pHeader->Amount * (sizeof(Entry) - 1)));
                 for (Int32 i = 0; i < Pointers.Length; i++)
                 {
-                    Kernel.memcpy(Buffer, (Entry*)Pointers[i], sizeof(Entry));
-                    Stream.Write(Buffer, 0, sizeof(Entry));
+                    Entry* pEntry = (Entry*)Pointers[i];
+                    pEntry->Offset = Offset;
+                    Offset += (UInt32)Kernel.strlen(pEntry->Path) + 1;
+                }
+
+                for (Int32 i = 0; i < Pointers.Length; i++)
+                {
+                    Entry* pEntry = (Entry*)Pointers[i];
+                    Kernel.memcpy(Buffer, pEntry, sizeof(Entry) - 1);
+                    Stream.Write(Buffer, 0, sizeof(Entry) - 1);
+                }
+
+                for (Int32 i = 0; i < Pointers.Length; i++)
+                {
+                    Entry* pEntry = (Entry*)Pointers[i];
+                    Kernel.memcpy(Buffer, pEntry->Path, Kernel.strlen(pEntry->Path) + 1);
+                    Stream.Write(Buffer, 0, Kernel.strlen(pEntry->Path) + 1);
                 }
                 Kernel.free(pHeader);
             }
         }
 
         /// <summary>
-        /// Save all the dictionary to the specified MATR file (in plain format).
+        /// Save all the dictionary to the specified RSDB_SMALL file (in plain format).
         /// </summary>
         public void SaveToTxt(String Path)
         {
@@ -214,22 +232,13 @@ namespace CO2_CORE_DLL.IO.DBC
                 lock (Entries)
                 {
                     Pointers = new IntPtr[Entries.Count];
-                    Entries.CopyTo(Pointers, 0);
+                    Entries.Values.CopyTo(Pointers, 0);
                 }
 
-                Stream.WriteLine("material={0}", Pointers.Length);
                 for (Int32 i = 0; i < Pointers.Length; i++)
                 {
                     Entry* pEntry = (Entry*)Pointers[i];
-
-                    StringBuilder Builder = new StringBuilder(Kernel.MAX_BUFFER_SIZE);
-                    Builder.Append(Kernel.cstring(pEntry->Name, MAX_NAMESIZE) + " ");
-                    Builder.Append(pEntry->Param0.ToString("X2") + " ");
-                    Builder.Append(pEntry->Param1.ToString("X2") + " ");
-                    Builder.Append(pEntry->Param2.ToString("X2") + " ");
-                    Builder.Append(pEntry->Param3.ToString("X2") + " ");
-                    Builder.Append(pEntry->Param4.ToString("X2"));
-                    Stream.WriteLine(Builder.ToString());
+                    Stream.WriteLine("{0}={1}", pEntry->UniqId, Kernel.cstring(pEntry->Path, Kernel.strlen(pEntry->Path) + 1));
                 }
             }
         }
@@ -237,5 +246,5 @@ namespace CO2_CORE_DLL.IO.DBC
 }
 
 // * ************************************************************
-// * * END:                                             matr.cs *
+// * * END:                                        rsdb_small.cs *
 // * ************************************************************

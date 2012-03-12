@@ -36,7 +36,7 @@ namespace CO2_CORE_DLL
         /// <summary>
         /// Standard size for a buffer. (4 KiB)
         /// 4 KiB represent the size of one disc block on most file system.
-        /// Do not change the value to avoid I/O error.
+        /// /!\ Do not change the value to avoid I/O error. /!\
         /// </summary>
         public const Int32 MAX_BUFFER_SIZE = 4096;
 

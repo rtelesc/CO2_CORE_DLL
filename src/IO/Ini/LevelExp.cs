@@ -163,10 +163,49 @@ namespace CO2_CORE_DLL.IO
         }
 
         /// <summary>
+        /// Get the number of key/value pairs contained in the dictionary.
+        /// </summary>
+        public Int32 Count { get { return Entries.Length; } }
+
+        /// <summary>
+        /// Get an array containing the values of the dictionary.
+        /// </summary>
+        public Int32[] Values
+        {
+            get
+            {
+                lock (Entries)
+                {
+                    Int32[] Values = new Int32[Entries.Length];
+                    Entries.CopyTo(Values, 0);
+                    return Values;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determine whether the dictionary contains the specified key.
+        /// </summary>
+        public Boolean ContainsKey(Int32 Level)
+        {
+            if (Level < 1)
+                return false;
+
+            lock (Entries)
+            {
+                if (Entries.Length < Level)
+                    return false;
+                return true;
+            }
+        }
+
+        /// <summary>
         /// Get the information of the specified level.
         /// </summary>
-        public Boolean GetAutoAllotInfo(Int32 Level, ref Int32 Exp)
+        public Boolean TryGetValue(Int32 Level, out Int32 Exp)
         {
+            Exp = 0;
+
             if (Level < 1)
                 return false;
 
@@ -184,7 +223,7 @@ namespace CO2_CORE_DLL.IO
         /// Add the levelexp's information in the dictionary.
         /// It will work only if the level is next to the last one.
         /// </summary>
-        public Boolean AddLevelExpInfo(Int32 Level, Int32 Exp)
+        public Boolean Add(Int32 Level, Int32 Exp)
         {
             if (Level < 1)
                 return false;
@@ -207,7 +246,7 @@ namespace CO2_CORE_DLL.IO
         /// Delete the levelexp's information in the dictionary.
         /// It will work only for the last one.
         /// </summary>
-        public Boolean DelLevelExpInfo(Int32 Level)
+        public Boolean Remove(Int32 Level)
         {
             if (Level < 1)
                 return false;
@@ -227,7 +266,7 @@ namespace CO2_CORE_DLL.IO
         /// <summary>
         /// Update the levelexp's information in the dictionary.
         /// </summary>
-        public Boolean UpdLevelExpInfo(Int32 Level, Int32 Exp)
+        public Boolean Update(Int32 Level, Int32 Exp)
         {
             if (Level < 1)
                 return false;
