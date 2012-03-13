@@ -76,8 +76,8 @@
     <Compile Include="IO\DBC\RSDB_SMALL.cs" />
     <Compile Include="IO\DBC\SIMO.cs" />
     <Compile Include="IO\Ini\ItemType.cs" />
+    <Compile Include="IO\NetDragonDatPkg\NetDragonDatPkg.cs" />
     <Compile Include="Kernel.cs" />
-    <Compile Include="Math\MathExt.cs" />
     <Compile Include="MSRandom.cs" />
     <Compile Include="MyString.cs" />
     <Compile Include="Queue.cs" />
@@ -86,8 +86,8 @@
     <Compile Include="IO\Ini\AutoAllot.cs" />
     <Compile Include="IO\Ini\LevelExp.cs" />
     <Compile Include="IO\Ini\MagicType.cs" />
-    <Compile Include="IO\TPD.cs" />
-    <Compile Include="IO\TPI.cs" />
+    <Compile Include="IO\NetDragonDatPkg\TPD.cs" />
+    <Compile Include="IO\NetDragonDatPkg\TPI.cs" />
     <Compile Include="IO\Compression\zlib\Adler32.cs" />
     <Compile Include="IO\Compression\zlib\Deflate.cs" />
     <Compile Include="IO\Compression\zlib\InfBlocks.cs" />
@@ -107,6 +107,7 @@
     <Compile Include="Net\Sockets\Event.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IO\WDF.cs" />
+    <Compile Include="SafeRandom.cs" />
     <Compile Include="Security\Cryptography\Blowfish.cs" />
     <Compile Include="Security\Cryptography\COCAC.cs" />
     <Compile Include="Security\Cryptography\COFAC.cs" />

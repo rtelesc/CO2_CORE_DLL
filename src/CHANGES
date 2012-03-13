@@ -1,4 +1,10 @@
-﻿CO2_CORE_DLL v1.0.0 (REV-11) new features and fixed bugs (from REV-10) :
+﻿CO2_CORE_DLL v1.0.0 (REV-12) new features and fixed bugs (from REV-11) :
+
+1.  Started to implement the NetDragon Data Package (TPD/TPI).
+
+March 13th, 2012
+
+CO2_CORE_DLL v1.0.0 (REV-11) new features and fixed bugs (from REV-10) :
 
 1.  Adapt the MagicType, ItemType and LevelExp implementations to work like a Dictionary/List to be used as a database.
 2.  Add a MathExt class that implement a thread-safe random.
@@ -78,11 +84,16 @@ CO2_CORE_DLL.IO
 
 - ChatLog: Binary / Custom Text support
 - WDF: Windsoul Data File, fully supported
+- NetDragonDatPkg: NetDragon Data Package (TPI/TPD), partially supported
 
 - EFFE (DBC): Binary / Text support [3DEffect]
 - EMOI (DBC): Binary / Text support [EmotionIco]
 - MATR (DBC): Binary / Text support [Material]
 - MESH (DBC): Binary / Text support [Armet, Armor, Head, Misc, Mount, Weapon]
+- ROPT (DBC): Binary / Text support [RolePart]
+- RSDB [32bits] (DBC): Binary / Text support [3DEffectObj, 3DObj, 3DTexture, Sound]
+- RSDB [64bits] (DBC): Binary / Text support [3DMotion, ArmetMotion, ArmorMotion, HeadMotion, MiscMotion, MountMotion, WeaponMotion]
+- SIMO (DBC): Binary / Text support [3DSimpleObj]
 
 CO2_CORE_DLL.Net
 - Msg: Basic class for packets. Work with structure and packet writer.
