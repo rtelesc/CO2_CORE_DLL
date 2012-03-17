@@ -1,4 +1,27 @@
-﻿using System;
+﻿// * ************************************************************
+// * * START:                                            tpi.cs *
+// * ************************************************************
+
+// * ************************************************************
+// *                      INFORMATIONS
+// * ************************************************************
+// * TPI class for the library.
+// * tpi.cs
+// * 
+// * --
+// *
+// * Feel free to use this class in your projects, but don't
+// * remove the header to keep the paternity of the class.
+// * 
+// * ************************************************************
+// *                      CREDITS
+// * ************************************************************
+// * Originally created by CptSky (March 13th, 2012)
+// * Copyright (C) 2012 CptSky
+// *
+// * ************************************************************
+
+using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
@@ -41,11 +64,11 @@ namespace CO2_CORE_DLL.IO
                 //public Byte Path_Length
                 public String Path;
                 public Int16 Unknown1; //0x01
-                public UInt32 RealSize;
-                public UInt32 NewSize;
-                //public UInt32 NewSize2;
-                //public UInt32 RealSize2;
-                public UInt32 DataOffset;
+                public UInt32 UncompressedSize;
+                public UInt32 CompressedSize;
+                //public UInt32 UncompressedSize2;
+                //public UInt32 CompressedSize2;
+                public UInt32 Offset;
             }
 
             private Encoding Encoding = Encoding.GetEncoding("Windows-1252");
@@ -111,13 +134,13 @@ namespace CO2_CORE_DLL.IO
 
                                 Entry.Path = Encoding.GetString(Reader.ReadBytes(Reader.ReadByte()));
                                 Entry.Unknown1 = Reader.ReadInt16();
-                                Entry.RealSize = Reader.ReadUInt32();
-                                Entry.NewSize = Reader.ReadUInt32();
-                                if (Reader.ReadUInt32() != Entry.NewSize)
+                                Entry.UncompressedSize = Reader.ReadUInt32();
+                                Entry.CompressedSize = Reader.ReadUInt32();
+                                if (Reader.ReadUInt32() != Entry.CompressedSize)
                                     continue;
-                                if (Reader.ReadUInt32() != Entry.RealSize)
+                                if (Reader.ReadUInt32() != Entry.UncompressedSize)
                                     continue;
-                                Entry.DataOffset = Reader.ReadUInt32();
+                                Entry.Offset = Reader.ReadUInt32();
 
                                 if (!Entries.ContainsKey(Entry.Path))
                                     Entries.Add(Entry.Path, Entry);
@@ -143,6 +166,155 @@ namespace CO2_CORE_DLL.IO
             }
 
             /// <summary>
+            /// Check if an entry is linked by the specified path.
+            /// </summary>
+            public Boolean ContainsEntry(String Path)
+            {
+                if (Path.StartsWith("/") || Path.StartsWith("\\"))
+                    return false;
+
+                lock (Entries)
+                {
+                    if (Entries.ContainsKey(Path.ToLowerInvariant().Replace('\\', '/')))
+                        return true;
+                }
+                return false;
+            }
+
+            /// <summary>
+            /// Get the data of the entry linked by the specified path.
+            /// All the data will be allocated in memory. It may fail.
+            /// 
+            /// Return false if the entry does not exist.
+            /// </summary>
+            public Boolean GetEntryData(String Path, out Byte[] Data)
+            {
+                Data = null;
+
+                if (Path.StartsWith("/") || Path.StartsWith("\\"))
+                    return false;
+
+                Entry Entry;
+                lock (Entries)
+                {
+                    if (!Entries.TryGetValue(Path.ToLowerInvariant().Replace('\\', '/'), out Entry))
+                        return false;
+                }
+
+                Data = new Byte[(Int32)Entry.UncompressedSize];
+                using (FileStream Input = new FileStream(TpdFile.GetFilename(), FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    Byte[] Buffer = new Byte[Kernel.MAX_BUFFER_SIZE];
+                    Byte[] Tmp = new Byte[Kernel.MAX_BUFFER_SIZE];
+                    Int32 Pos = 0;
+
+                    Input.Seek(Entry.Offset, SeekOrigin.Begin);
+
+                    {
+                        ZStream Stream = new ZStream();
+                        Stream.inflateInit();
+
+                        Int32 Result = 0;
+                        Int32 Length = 0;
+                        do
+                        {
+                            Stream.avail_in = Input.Read(Buffer, 0, Kernel.MAX_BUFFER_SIZE);
+                            Stream.next_in = Buffer;
+                            Stream.next_in_index = 0;
+
+                            if (Stream.avail_in == 0)
+                                break;
+
+                            do
+                            {
+                                Stream.avail_out = Kernel.MAX_BUFFER_SIZE;
+                                Stream.next_out = Tmp;
+                                Stream.next_out_index = 0;
+
+                                Result = Stream.inflate(zlibConst.Z_NO_FLUSH);
+
+                                Length = Kernel.MAX_BUFFER_SIZE - Stream.avail_out;
+                                Array.Copy(Buffer, 0, Data, Pos, Length);
+                                Pos += Length;
+                            }
+                            while (Stream.avail_out == 0);
+                        }
+                        while (Result != zlibConst.Z_STREAM_END);
+
+                        Stream.inflateEnd();
+                    }
+                }
+                return true;
+            }
+
+            /// <summary>
+            /// Get the data of the entry linked by the specified path.
+            /// All the data will be allocated in memory. It may fail.
+            /// 
+            /// Return false if the entry does not exist.
+            /// </summary>
+            public Boolean GetEntryData(String Path, Byte** pData, Int32* pLength)
+            {
+                *pData = null;
+
+                if (Path.StartsWith("/") || Path.StartsWith("\\"))
+                    return false;
+
+                Entry Entry;
+                lock (Entries)
+                {
+                    if (!Entries.TryGetValue(Path.ToLowerInvariant().Replace('\\', '/'), out Entry))
+                        return false;
+                }
+
+                *pData = (Byte*)Kernel.malloc((Int32)Entry.UncompressedSize);
+                *pLength = (Int32)Entry.UncompressedSize;
+                using (FileStream Input = new FileStream(TpdFile.GetFilename(), FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    Byte[] Buffer = new Byte[Kernel.MAX_BUFFER_SIZE];
+                    Byte[] Tmp = new Byte[Kernel.MAX_BUFFER_SIZE];
+                    Int32 Pos = 0;
+
+                    Input.Seek(Entry.Offset, SeekOrigin.Begin);
+
+                    {
+                        ZStream Stream = new ZStream();
+                        Stream.inflateInit();
+
+                        Int32 Result = 0;
+                        Int32 Length = 0;
+                        do
+                        {
+                            Stream.avail_in = Input.Read(Buffer, 0, Kernel.MAX_BUFFER_SIZE);
+                            Stream.next_in = Buffer;
+                            Stream.next_in_index = 0;
+
+                            if (Stream.avail_in == 0)
+                                break;
+
+                            do
+                            {
+                                Stream.avail_out = Kernel.MAX_BUFFER_SIZE;
+                                Stream.next_out = Tmp;
+                                Stream.next_out_index = 0;
+
+                                Result = Stream.inflate(zlibConst.Z_NO_FLUSH);
+
+                                Length = Kernel.MAX_BUFFER_SIZE - Stream.avail_out;
+                                Kernel.memcpy((*pData) + Pos, Buffer, Length);
+                                Pos += Length;
+                            }
+                            while (Stream.avail_out == 0);
+                        }
+                        while (Result != zlibConst.Z_STREAM_END);
+
+                        Stream.inflateEnd();
+                    }
+                }
+                return true;
+            }
+
+            /// <summary>
             /// Extract all files contained in the package in the folder pointed by the destination path.
             /// </summary>
             public void ExtractAll(String Destination)
@@ -162,7 +334,7 @@ namespace CO2_CORE_DLL.IO
                         if (!Directory.Exists(Path.GetDirectoryName(DestPath)))
                             Directory.CreateDirectory(Path.GetDirectoryName(DestPath));
 
-                        Input.Seek(Entry.DataOffset, SeekOrigin.Begin);
+                        Input.Seek(Entry.Offset, SeekOrigin.Begin);
                         using (FileStream Output = new FileStream(DestPath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read))
                         {
                             ZStream Stream = new ZStream();
@@ -323,3 +495,7 @@ namespace CO2_CORE_DLL.IO
         }
     }
 }
+
+// * ************************************************************
+// * * END:                                              tpi.cs *
+// * ************************************************************
