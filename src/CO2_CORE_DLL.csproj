@@ -109,6 +109,7 @@
     <Compile Include="IO\WDF.cs" />
     <Compile Include="SafeRandom.cs" />
     <Compile Include="Security\Cryptography\Blowfish.cs" />
+    <Compile Include="Security\Cryptography\CAST5.cs" />
     <Compile Include="Security\Cryptography\COCAC.cs" />
     <Compile Include="Security\Cryptography\COFAC.cs" />
     <Compile Include="Security\Cryptography\CORC5.cs" />

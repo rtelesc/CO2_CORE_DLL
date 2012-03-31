@@ -37,6 +37,9 @@ namespace CO2_CORE_DLL.Security.Cryptography
 
         public String Key { get { return s.ToHexString(); } }
 
+        public String ToString() { return s.ToHexString(); }
+        public Byte[] ToBytes() { return s.getBytes(); }
+
         /// <summary>
         /// Create a new Diffie-Hellman exchange where the prime number is p and the base is g.
         /// </summary>

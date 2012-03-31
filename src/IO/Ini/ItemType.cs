@@ -141,7 +141,15 @@ namespace CO2_CORE_DLL.IO
                     Byte[] Buffer = new Byte[Kernel.MAX_BUFFER_SIZE];
                     Entries = new Dictionary<Int32, IntPtr>();
 
-                    while (Stream.Read(Buffer, 0, sizeof(Entry)) == sizeof(Entry))
+                    Int32 Amount = 0;
+                    Stream.Read(Buffer, 0, sizeof(Int32));
+                    fixed (Byte* pBuffer = Buffer)
+                        Amount = *((Int32*)pBuffer);
+
+                    //Bypass all the useless UIDs that are repeated in the entries...
+                    Stream.Seek(sizeof(Int32) * Amount, SeekOrigin.Current);
+
+                    for (Int32 i = 0; i < Amount; i++)
                     {
                         Entry* pEntry = (Entry*)Kernel.malloc(sizeof(Entry));
                         Kernel.memcpy((Byte*)pEntry, Buffer, sizeof(Entry));
@@ -249,6 +257,17 @@ namespace CO2_CORE_DLL.IO
                 {
                     Pointers = new IntPtr[Entries.Count];
                     Entries.Values.CopyTo(Pointers, 0);
+                }
+
+                Int32 Amount = Pointers.Length;
+                Kernel.memcpy(Buffer, &Amount, sizeof(Int32));
+                Stream.Write(Buffer, 0, sizeof(Int32));
+
+                for (Int32 i = 0; i < Pointers.Length; i++)
+                {
+                    Int32 UniqId = ((Entry*)Pointers[i])->ID;
+                    Kernel.memcpy(Buffer, &UniqId, sizeof(Int32));
+                    Stream.Write(Buffer, 0, sizeof(Int32));
                 }
 
                 for (Int32 i = 0; i < Pointers.Length; i++)

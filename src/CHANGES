@@ -1,4 +1,12 @@
-﻿CO2_CORE_DLL v1.0.0 (REV-13) new features and fixed bugs (from REV-12) :
+﻿CO2_CORE_DLL v1.0.0 (REV-14) new features and fixed bugs (from REV-13) :
+
+1.  Update the Blowfish implementation.
+2.  Add a function to get the Key in bytes. (DiffieHellman)
+3.  Add a CAST5 (CAST-128) implementation.
+
+March 31th, 2012
+
+CO2_CORE_DLL v1.0.0 (REV-13) new features and fixed bugs (from REV-12) :
 
 1.  Continue to implement the NetDragon Data Package (TPD/TPI).
 
@@ -112,6 +120,7 @@ CO2_CORE_DLL.Net.Sockets
 
 CO2_CORE_DLL.Security.Cryptography
 - Blowfish: Blowfish Cipher Feedback (CFB64)
+- CAST5: CAST-128 Cipher Feedback (CFB64)
 - COCAC: Conquer Online Client Asymmetric Cipher
 - COFAC: Conquer Online File Asymmetric Cipher
 - CORC5: Conquer Online Rivest Cipher 5

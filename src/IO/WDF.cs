@@ -89,7 +89,6 @@ namespace CO2_CORE_DLL.IO
     public unsafe class WDF
     {
         public const UInt32 WDF_ID = 0x57444650;
-        public const Int32 WDF_MAXFILE = 0x10000; //Is that true?
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Header
@@ -599,9 +598,6 @@ namespace CO2_CORE_DLL.IO
             FileInfo[] Files = DI.GetFiles("*.*", SearchOption.AllDirectories);
 
             //Really safe implementation...
-            if (Files.Length > WDF_MAXFILE)
-                throw new Exception("A WDF package can't contains more than " + WDF_MAXFILE + " files!");
-
             UInt32 MaxTotalDataSize = (UInt32)(UInt32.MaxValue - sizeof(Header) - (Files.Length * sizeof(Entry)));
             UInt32 TotalDataSize = 0;
 
