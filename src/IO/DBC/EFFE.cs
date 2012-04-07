@@ -119,7 +119,7 @@ namespace CO2_CORE_DLL.IO.DBC
                 using (FileStream Stream = new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     Byte[] Buffer = new Byte[Kernel.MAX_BUFFER_SIZE];
-                    Header* pHeader = (Header*)Kernel.malloc(sizeof(Header));
+                    Header* pHeader = stackalloc Header[1];
 
                     Stream.Read(Buffer, 0, sizeof(Header));
                     Kernel.memcpy(pHeader, Buffer, sizeof(Header));
@@ -150,7 +150,6 @@ namespace CO2_CORE_DLL.IO.DBC
                         if (!Entries.ContainsKey(Kernel.cstring(pEntry->Name, MAX_NAMESIZE)))
                             Entries.Add(Kernel.cstring(pEntry->Name, MAX_NAMESIZE), (IntPtr)pEntry);
                     }
-                    Kernel.free(pHeader);
                 }
             }
         }
@@ -226,7 +225,7 @@ namespace CO2_CORE_DLL.IO.DBC
                     Entries.Values.CopyTo(Pointers, 0);
                 }
 
-                Header* pHeader = (Header*)Kernel.malloc(sizeof(Header));
+                Header* pHeader = stackalloc Header[1];
                 pHeader->Identifier = EFFE_IDENTIFIER;
                 pHeader->Amount = Pointers.Length;
 
@@ -239,7 +238,6 @@ namespace CO2_CORE_DLL.IO.DBC
                     Kernel.memcpy(Buffer, (Entry*)Pointers[i], Length);
                     Stream.Write(Buffer, 0, Length - 1);
                 }
-                Kernel.free(pHeader);
             }
         }
 

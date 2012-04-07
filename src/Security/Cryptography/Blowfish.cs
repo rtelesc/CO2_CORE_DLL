@@ -217,7 +217,8 @@ namespace CO2_CORE_DLL.Security.Cryptography
             if (Length > BLOWFISH_KEY_SIZE)
                 Length = BLOWFISH_KEY_SIZE;
 
-            Byte* pBufKey = (Byte*)Kernel.calloc(sizeof(Byte) * BLOWFISH_KEY_SIZE);
+            Byte* pBufKey = stackalloc Byte[BLOWFISH_KEY_SIZE];
+            Kernel.memset(pBufKey, 0, BLOWFISH_KEY_SIZE);
             Kernel.memcpy(pBufKey, pKey, Length);
 
             UInt32 i, j, x;
@@ -242,7 +243,8 @@ namespace CO2_CORE_DLL.Security.Cryptography
                 P[i] ^= x;
             }
 
-            Byte* pBlock = (Byte*)Kernel.calloc(BLOWFISH_BLOCK_SIZE);
+            Byte* pBlock = stackalloc Byte[BLOWFISH_BLOCK_SIZE];
+            Kernel.memset(pBlock, 0, BLOWFISH_BLOCK_SIZE);
             for (i = 0; i < P.Length; )
             {
                 Encipher(pBlock);
@@ -328,7 +330,7 @@ namespace CO2_CORE_DLL.Security.Cryptography
             Kernel.assert(pBuf != null);
             Kernel.assert(Length > 0);
 
-            Byte* pBlock = (Byte*)Kernel.malloc(BLOWFISH_BLOCK_SIZE);
+            Byte* pBlock = stackalloc Byte[BLOWFISH_BLOCK_SIZE];
             Kernel.memcpy(pBlock, EncryptIV, BLOWFISH_BLOCK_SIZE);
 
             while (Length-- > 0)
@@ -344,7 +346,6 @@ namespace CO2_CORE_DLL.Security.Cryptography
                 EncryptNum = (EncryptNum + 1) & (BLOWFISH_BLOCK_SIZE - 1);
             }
             Kernel.memcpy(EncryptIV, pBlock, BLOWFISH_BLOCK_SIZE);
-            Kernel.free(pBlock);
         }
 
         /// <summary>
@@ -355,7 +356,7 @@ namespace CO2_CORE_DLL.Security.Cryptography
             Kernel.assert(pBuf != null);
             Kernel.assert(Length > 0);
 
-            Byte* pBlock = (Byte*)Kernel.malloc(BLOWFISH_BLOCK_SIZE);
+            Byte* pBlock = stackalloc Byte[BLOWFISH_BLOCK_SIZE];
             Kernel.memcpy(pBlock, DecryptIV, BLOWFISH_BLOCK_SIZE);
 
             while (Length-- > 0)
@@ -372,7 +373,6 @@ namespace CO2_CORE_DLL.Security.Cryptography
                 DecryptNum = (DecryptNum + 1) & (BLOWFISH_BLOCK_SIZE - 1);
             }
             Kernel.memcpy(DecryptIV, pBlock, BLOWFISH_BLOCK_SIZE);
-            Kernel.free(pBlock);
         }
 
         /// <summary>

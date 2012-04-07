@@ -189,7 +189,7 @@ namespace CO2_CORE_DLL.IO
                     Entries.CopyTo(Pointers, 0);
                 }
 
-                Byte* pTemp = (Byte*)Kernel.malloc(MAX_TXTSIZE);
+                Byte* pTemp = stackalloc Byte[MAX_TXTSIZE];
                 for (Int32 i = 0; i < Pointers.Length; i++)
                 {
                     ChatLogLine* pInfo = (ChatLogLine*)Pointers[i];
@@ -203,7 +203,6 @@ namespace CO2_CORE_DLL.IO
                     Kernel.memcpy(Buffer, pTemp, MAX_TXTSIZE);
                     Stream.Write(Buffer, 0, MAX_TXTSIZE);
                 }
-                Kernel.free(pTemp);
             }
         }
 

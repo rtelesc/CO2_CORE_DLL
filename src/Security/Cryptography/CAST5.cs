@@ -351,11 +351,11 @@ namespace CO2_CORE_DLL.Security.Cryptography
             EncryptNum = 0;
             DecryptNum = 0;
 
-            UInt32* x = (UInt32*)Kernel.malloc(sizeof(UInt32) * CAST5_KEY_SIZE);
-            UInt32* z = (UInt32*)Kernel.malloc(sizeof(UInt32) * CAST5_KEY_SIZE);
-            UInt32* k = (UInt32*)Kernel.malloc(sizeof(UInt32) * CAST5_EXT_KEY_SIZE);
-            UInt32* X = (UInt32*)Kernel.malloc(sizeof(UInt32) * 4);
-            UInt32* Z = (UInt32*)Kernel.malloc(sizeof(UInt32) * 4);
+            UInt32* x = stackalloc UInt32[CAST5_KEY_SIZE];
+            UInt32* z = stackalloc UInt32[CAST5_KEY_SIZE];
+            UInt32* k = stackalloc UInt32[CAST5_EXT_KEY_SIZE];
+            UInt32* X = stackalloc UInt32[4];
+            UInt32* Z = stackalloc UInt32[4];
             UInt32* K;
 
             UInt32 l;
@@ -585,7 +585,7 @@ namespace CO2_CORE_DLL.Security.Cryptography
             Kernel.assert(pBuf != null);
             Kernel.assert(Length > 0);
 
-            Byte* pBlock = (Byte*)Kernel.malloc(CAST5_BLOCK_SIZE);
+            Byte* pBlock = stackalloc Byte[CAST5_BLOCK_SIZE];
             Kernel.memcpy(pBlock, EncryptIV, CAST5_BLOCK_SIZE);
 
             while (Length-- > 0)
@@ -601,7 +601,6 @@ namespace CO2_CORE_DLL.Security.Cryptography
                 EncryptNum = (EncryptNum + 1) & (CAST5_BLOCK_SIZE - 1);
             }
             Kernel.memcpy(EncryptIV, pBlock, CAST5_BLOCK_SIZE);
-            Kernel.free(pBlock);
         }
 
         /// <summary>
@@ -612,7 +611,7 @@ namespace CO2_CORE_DLL.Security.Cryptography
             Kernel.assert(pBuf != null);
             Kernel.assert(Length > 0);
 
-            Byte* pBlock = (Byte*)Kernel.malloc(CAST5_BLOCK_SIZE);
+            Byte* pBlock = stackalloc Byte[CAST5_BLOCK_SIZE];
             Kernel.memcpy(pBlock, DecryptIV, CAST5_BLOCK_SIZE);
 
             while (Length-- > 0)
@@ -629,7 +628,6 @@ namespace CO2_CORE_DLL.Security.Cryptography
                 DecryptNum = (DecryptNum + 1) & (CAST5_BLOCK_SIZE - 1);
             }
             Kernel.memcpy(DecryptIV, pBlock, CAST5_BLOCK_SIZE);
-            Kernel.free(pBlock);
         }
 
         /// <summary>

@@ -615,7 +615,7 @@ namespace CO2_CORE_DLL.IO
             }
             //End.
 
-            Header* pHeader = (Header*)Kernel.malloc(sizeof(Header));
+            Header* pHeader = stackalloc Header[1];
             pHeader->Id = WDF_ID;
             pHeader->Number = Files.Length;
             pHeader->Offset = (UInt32)(sizeof(Header) + TotalDataSize);
@@ -648,11 +648,10 @@ namespace CO2_CORE_DLL.IO
                 Console.Write("Writing entries... ");
                 using (StreamWriter Writer = new StreamWriter(Destination.Replace(".wdf", ".lst"), false, Encoding.Default))
                 {
+                    Entry* pEntry = stackalloc Entry[1];
                     for (Int32 i = 0; i < pHeader->Number; i++)
                     {
                         Console.Write("\rWriting entries... {0}%", i * 100 / pHeader->Number);
-
-                        Entry* pEntry = (Entry*)Kernel.malloc(sizeof(Entry));
 
                         String RelativePath = Files[i].FullName.Replace(DI.Parent.FullName + "\\", "");
                         RelativePath = RelativePath.ToLowerInvariant();
@@ -668,13 +667,10 @@ namespace CO2_CORE_DLL.IO
 
                         Kernel.memcpy(Buffer, pEntry, sizeof(Entry));
                         FStream.Write(Buffer, 0, sizeof(Entry));
-                        Kernel.free(pEntry);
                     }
                 }
                 Console.WriteLine("\b\b\bOk!");
             }
-
-            Kernel.free(pHeader);
         }
 
         /// <summary>
@@ -689,8 +685,10 @@ namespace CO2_CORE_DLL.IO
 
             UInt32 v;
             Int32 i;
-            UInt32* m = (UInt32*)Kernel.calloc(sizeof(UInt32) * 0x046);
-            Byte* buffer = (Byte*)Kernel.calloc(sizeof(Byte) * 0x100);
+            UInt32* m = stackalloc UInt32[0x46];
+            Kernel.memset(m, 0, sizeof(UInt32) * 0x46);
+            Byte* buffer = stackalloc Byte[0x100];
+            Kernel.memset(buffer, 0, 0x100);
 
             Str = Str.ToLowerInvariant();
             Str = Str.Replace('\\', '/');
@@ -756,8 +754,6 @@ namespace CO2_CORE_DLL.IO
             esi ^= edi;
             v = esi;
 
-            Kernel.free(buffer);
-            Kernel.free(m);
             return v;
         }
     }

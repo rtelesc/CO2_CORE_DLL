@@ -135,7 +135,7 @@ namespace CO2_CORE_DLL.IO
                     Entries.CopyTo(Values, 0);
                 }
 
-                Int32* pValue = (Int32*)Kernel.malloc(sizeof(Int32));
+                Int32* pValue = stackalloc Int32[1];
                 for (Int32 i = 0; i < Values.Length; i++)
                 {
                     *pValue = Values[i] * -1;
@@ -143,7 +143,6 @@ namespace CO2_CORE_DLL.IO
                     Kernel.memcpy(Buffer, pValue, sizeof(Int32));
                     Stream.Write(Buffer, 0, sizeof(Int32));
                 }
-                Kernel.free(pValue);
             }
         }
 
