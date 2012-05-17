@@ -109,16 +109,13 @@ namespace CO2_CORE_DLL.IO.DBC
                 using (FileStream Stream = new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     Byte[] Buffer = new Byte[Kernel.MAX_BUFFER_SIZE];
-                    Header* pHeader = (Header*)Kernel.malloc(sizeof(Header));
+                    Header* pHeader = stackalloc Header[1];
 
                     Stream.Read(Buffer, 0, sizeof(Header));
                     Kernel.memcpy(pHeader, Buffer, sizeof(Header));
 
                     if (pHeader->Identifier != MESH_IDENTIFIER)
-                    {
-                        Kernel.free(pHeader);
                         throw new Exception("Invalid MESH Header in file: " + Path);
-                    }
 
                     for (Int32 i = 0; i < pHeader->Amount; i++)
                     {
@@ -144,7 +141,6 @@ namespace CO2_CORE_DLL.IO.DBC
                         if (!Entries.ContainsKey(pEntry->UniqId))
                             Entries.Add(pEntry->UniqId, (IntPtr)pEntry);
                     }
-                    Kernel.free(pHeader);
                 }
             }
         }
@@ -211,7 +207,7 @@ namespace CO2_CORE_DLL.IO.DBC
                     Entries.Values.CopyTo(Pointers, 0);
                 }
 
-                Header* pHeader = (Header*)Kernel.malloc(sizeof(Header));
+                Header* pHeader = stackalloc Header[1];
                 pHeader->Identifier = MESH_IDENTIFIER;
                 pHeader->Amount = Pointers.Length;
 
@@ -224,7 +220,6 @@ namespace CO2_CORE_DLL.IO.DBC
                     Kernel.memcpy(Buffer, (Entry*)Pointers[i], Length);
                     Stream.Write(Buffer, 0, Length - 1);
                 }
-                Kernel.free(pHeader);
             }
         }
 

@@ -96,16 +96,13 @@ namespace CO2_CORE_DLL.IO.DBC
                 using (FileStream Stream = new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     Byte[] Buffer = new Byte[Kernel.MAX_BUFFER_SIZE];
-                    Header* pHeader = (Header*)Kernel.malloc(sizeof(Header));
+                    Header* pHeader = stackalloc Header[1];
 
                     Stream.Read(Buffer, 0, sizeof(Header));
                     Kernel.memcpy(pHeader, Buffer, sizeof(Header));
 
                     if (pHeader->Identifier != EMOI_IDENTIFIER)
-                    {
-                        Kernel.free(pHeader);
                         throw new Exception("Invalid EMOI Header in file: " + Path);
-                    }
 
                     for (Int32 i = 0; i < pHeader->Amount; i++)
                     {
@@ -116,7 +113,6 @@ namespace CO2_CORE_DLL.IO.DBC
                         if (!Entries.ContainsKey(pEntry->ID))
                             Entries.Add(pEntry->ID, (IntPtr)pEntry);
                     }
-                    Kernel.free(pHeader);
                 }
             }
         }
@@ -144,7 +140,10 @@ namespace CO2_CORE_DLL.IO.DBC
                         try
                         {
                             pEntry->ID = Int32.Parse(Parts[0]);
-                            Kernel.memcpy(pEntry->Name, Parts[1].ToPointer(), Math.Min(MAX_NAMESIZE - 1, Parts[1].Length));
+
+                            Byte* pName = stackalloc Byte[Parts[1].Length + 1];
+                            Parts[1].ToPointer(pName);
+                            Kernel.memcpy(pEntry->Name, pName, Math.Min(MAX_NAMESIZE - 1, Kernel.strlen(pName)));
 
                             if (!Entries.ContainsKey(pEntry->ID))
                                 Entries.Add(pEntry->ID, (IntPtr)pEntry);
@@ -175,7 +174,7 @@ namespace CO2_CORE_DLL.IO.DBC
                     Entries.Values.CopyTo(Pointers, 0);
                 }
 
-                Header* pHeader = (Header*)Kernel.malloc(sizeof(Header));
+                Header* pHeader = stackalloc Header[1];
                 pHeader->Identifier = EMOI_IDENTIFIER;
                 pHeader->Amount = Pointers.Length;
 
@@ -187,7 +186,6 @@ namespace CO2_CORE_DLL.IO.DBC
                     Kernel.memcpy(Buffer, (Entry*)Pointers[i], sizeof(Entry));
                     Stream.Write(Buffer, 0, sizeof(Entry));
                 }
-                Kernel.free(pHeader);
             }
         }
 

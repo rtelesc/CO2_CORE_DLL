@@ -35,9 +35,13 @@ namespace CO2_CORE_DLL.Security.Cryptography
         private BigInteger A = 0;
         private BigInteger B = 0;
 
+        public BigInteger GetKey() { return s; }
+        public BigInteger GetRequest() { return A; }
+        public BigInteger GetResponse() { return A; }
+
         public String Key { get { return s.ToHexString(); } }
 
-        public String ToString() { return s.ToHexString(); }
+        public override String ToString() { return s.ToHexString(); }
         public Byte[] ToBytes() { return s.getBytes(); }
 
         /// <summary>

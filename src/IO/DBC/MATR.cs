@@ -100,16 +100,13 @@ namespace CO2_CORE_DLL.IO.DBC
                 using (FileStream Stream = new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     Byte[] Buffer = new Byte[Kernel.MAX_BUFFER_SIZE];
-                    Header* pHeader = (Header*)Kernel.malloc(sizeof(Header));
+                    Header* pHeader = stackalloc Header[1];
 
                     Stream.Read(Buffer, 0, sizeof(Header));
                     Kernel.memcpy(pHeader, Buffer, sizeof(Header));
 
                     if (pHeader->Identifier != MATR_IDENTIFIER)
-                    {
-                        Kernel.free(pHeader);
                         throw new Exception("Invalid MATR Header in file: " + Path);
-                    }
 
                     for (Int32 i = 0; i < pHeader->Amount; i++)
                     {
@@ -119,7 +116,6 @@ namespace CO2_CORE_DLL.IO.DBC
 
                         Entries.Add((IntPtr)pEntry);
                     }
-                    Kernel.free(pHeader);
                 }
             }
         }
@@ -151,7 +147,10 @@ namespace CO2_CORE_DLL.IO.DBC
 
                         try
                         {
-                            Kernel.memcpy(pEntry->Name, Parts[0].ToPointer(), Math.Min(MAX_NAMESIZE - 1, Parts[0].Length));
+                            Byte* pName = stackalloc Byte[Parts[0].Length + 1];
+                            Parts[0].ToPointer(pName);
+                            Kernel.memcpy(pEntry->Name, pName, Math.Min(MAX_NAMESIZE - 1, Kernel.strlen(pName)));
+
                             pEntry->Param0 = UInt32.Parse(Parts[1], System.Globalization.NumberStyles.HexNumber);
                             pEntry->Param1 = UInt32.Parse(Parts[2], System.Globalization.NumberStyles.HexNumber);
                             pEntry->Param2 = UInt32.Parse(Parts[3], System.Globalization.NumberStyles.HexNumber);
@@ -186,7 +185,7 @@ namespace CO2_CORE_DLL.IO.DBC
                     Entries.CopyTo(Pointers, 0);
                 }
 
-                Header* pHeader = (Header*)Kernel.malloc(sizeof(Header));
+                Header* pHeader = stackalloc Header[1];
                 pHeader->Identifier = MATR_IDENTIFIER;
                 pHeader->Amount = Pointers.Length;
 
@@ -198,7 +197,6 @@ namespace CO2_CORE_DLL.IO.DBC
                     Kernel.memcpy(Buffer, (Entry*)Pointers[i], sizeof(Entry));
                     Stream.Write(Buffer, 0, sizeof(Entry));
                 }
-                Kernel.free(pHeader);
             }
         }
 

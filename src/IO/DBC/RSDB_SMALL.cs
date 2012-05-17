@@ -95,16 +95,13 @@ namespace CO2_CORE_DLL.IO.DBC
                 using (FileStream Stream = new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     Byte[] Buffer = new Byte[Kernel.MAX_BUFFER_SIZE];
-                    Header* pHeader = (Header*)Kernel.malloc(sizeof(Header));
+                    Header* pHeader = stackalloc Header[1];
 
                     Stream.Read(Buffer, 0, sizeof(Header));
                     Kernel.memcpy(pHeader, Buffer, sizeof(Header));
 
                     if (pHeader->Identifier != RSDB_SMALL_IDENTIFIER)
-                    {
-                        Kernel.free(pHeader);
                         throw new Exception("Invalid RSDB_SMALL Header in file: " + Path);
-                    }
 
                     Int64 Address = 0;
                     for (Int32 i = 0; i < pHeader->Amount; i++)
@@ -132,8 +129,9 @@ namespace CO2_CORE_DLL.IO.DBC
 
                         if (!Entries.ContainsKey(pEntry->UniqId))
                             Entries.Add(pEntry->UniqId, (IntPtr)pEntry);
+
+                        Kernel.free(pPath);
                     }
-                    Kernel.free(pHeader);
                 }
             }
         }
@@ -167,6 +165,8 @@ namespace CO2_CORE_DLL.IO.DBC
 
                         if (!Entries.ContainsKey(pEntry->UniqId))
                             Entries.Add(pEntry->UniqId, (IntPtr)pEntry);
+
+                        Kernel.free(pPath);
                     }
                 }
             }
@@ -188,7 +188,7 @@ namespace CO2_CORE_DLL.IO.DBC
                     Entries.Values.CopyTo(Pointers, 0);
                 }
 
-                Header* pHeader = (Header*)Kernel.malloc(sizeof(Header));
+                Header* pHeader = stackalloc Header[1];
                 pHeader->Identifier = RSDB_SMALL_IDENTIFIER;
                 pHeader->Amount = Pointers.Length;
 
@@ -216,7 +216,6 @@ namespace CO2_CORE_DLL.IO.DBC
                     Kernel.memcpy(Buffer, pEntry->Path, Kernel.strlen(pEntry->Path) + 1);
                     Stream.Write(Buffer, 0, Kernel.strlen(pEntry->Path) + 1);
                 }
-                Kernel.free(pHeader);
             }
         }
 

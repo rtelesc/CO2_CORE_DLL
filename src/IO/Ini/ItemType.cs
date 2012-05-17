@@ -190,8 +190,13 @@ namespace CO2_CORE_DLL.IO
 
                         try
                         {
+                            Byte* pStr = stackalloc Byte[Kernel.MAX_BUFFER_SIZE];
+
                             pEntry->ID = Int32.Parse(Parts[0]);
-                            Kernel.memcpy(pEntry->Name, Parts[1].ToPointer(), Math.Min(MAX_NAMESIZE - 1, Parts[1].Length));
+
+                            Parts[1].ToPointer(pStr);
+                            Kernel.memcpy(pEntry->Name, pStr, Math.Min(MAX_NAMESIZE - 1, Kernel.strlen(pStr)));
+
                             pEntry->RequiredProfession = Byte.Parse(Parts[2]);
                             pEntry->RequiredWeaponSkill = Byte.Parse(Parts[3]);
                             pEntry->RequiredLevel = Byte.Parse(Parts[4]);
@@ -227,8 +232,11 @@ namespace CO2_CORE_DLL.IO
                             pEntry->RepairMode = Byte.Parse(Parts[34]);
                             pEntry->TypeMask = Byte.Parse(Parts[35]);
                             pEntry->ConquerPoints = UInt32.Parse(Parts[36]);
-                            Kernel.memcpy(pEntry->Type, Parts[37].ToPointer(), Math.Min(MAX_NAMESIZE - 1, Parts[37].Length));
-                            Kernel.memcpy(pEntry->Desc, Parts[38].ToPointer(), Math.Min(MAX_DESCSIZE - 1, Parts[38].Length));
+
+                            Parts[37].ToPointer(pStr);
+                            Kernel.memcpy(pEntry->Type, pStr, Math.Min(MAX_NAMESIZE - 1, Kernel.strlen(pStr)));
+                            Parts[38].ToPointer(pStr);
+                            Kernel.memcpy(pEntry->Type, pStr, Math.Min(MAX_DESCSIZE - 1, Kernel.strlen(pStr)));
 
                             if (!Entries.ContainsKey(pEntry->ID))
                                 Entries.Add(pEntry->ID, (IntPtr)pEntry);

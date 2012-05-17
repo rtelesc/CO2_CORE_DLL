@@ -383,8 +383,8 @@ namespace CO2_CORE_DLL.IO
                 DirectoryInfo DI = new DirectoryInfo(Source);
                 FileInfo[] Files = DI.GetFiles("*.*", SearchOption.AllDirectories);
 
-                Header* pHeader = (Header*)Kernel.calloc(sizeof(Header));
-                Kernel.memcpy(pHeader->Identifier, TPI_IDENTIFIER.ToPointer(), TPI_IDENTIFIER.Length);
+                Header* pHeader = stackalloc Header[1];
+                TPI_IDENTIFIER.ToPointer(pHeader->Identifier);
                 pHeader->Number = (UInt32)Files.Length;
                 pHeader->Version = TPI_VERSION;
                 pHeader->Unknown1 = TPI_UNKNOWN_1;
@@ -489,8 +489,6 @@ namespace CO2_CORE_DLL.IO
                         Console.WriteLine("Ok!");
                     }
                 }
-
-                Kernel.free(pHeader);
             }
         }
     }

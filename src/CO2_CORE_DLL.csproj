@@ -65,6 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BigInteger.cs" />
+    <Compile Include="CStdLib\cassert.cs" />
+    <Compile Include="CStdLib\cstdlib.cs" />
+    <Compile Include="CStdLib\cstring.cs" />
     <Compile Include="Ini.cs" />
     <Compile Include="IO\ChatLog.cs" />
     <Compile Include="IO\DBC\EFFE.cs" />
@@ -116,6 +119,7 @@
     <Compile Include="Security\Cryptography\COSAC.cs" />
     <Compile Include="Net\Sockets\NetworkClient.cs" />
     <Compile Include="Net\Sockets\ServerSocket.cs" />
+    <Compile Include="Security\Cryptography\COSAC_2.cs" />
     <Compile Include="Security\Cryptography\DiffieHellman.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

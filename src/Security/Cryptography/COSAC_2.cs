@@ -16,13 +16,13 @@
 // * ************************************************************
 // *                      CREDITS
 // * ************************************************************
-// * Originally created by CptSky (May 10th, 2011)
-// * Copyright (C) 2011 CptSky
+// * Originally created by CptSky (May 3rd, 2012)
+// * Copyright (C) 2012 CptSky
 // *
 // * ************************************************************
 // *                      SPECIAL THANKS
 // * ************************************************************
-// * Sparkie (unknownone @ e*pvp)
+// * Lateralus (Lateralus @ e*pvp)
 // * 
 // * ************************************************************
 
@@ -33,7 +33,7 @@ namespace CO2_CORE_DLL.Security.Cryptography
     /// <summary>
     /// Conquer Online Server Asymmetric Cipher
     /// </summary>
-    public unsafe class COSAC
+    public unsafe class COSAC2
     {
         private const Int32 COSAC_IV = 512;
         private const Int32 COSAC_KEY = 512;
@@ -46,9 +46,9 @@ namespace CO2_CORE_DLL.Security.Cryptography
         /// <summary>
         /// Create a new COSAC instance.
         /// </summary>
-        public COSAC() { }
+        public COSAC2() { }
 
-        ~COSAC()
+        ~COSAC2()
         {
             if (BufIV != null)
                 Kernel.free(BufIV);
@@ -58,7 +58,7 @@ namespace CO2_CORE_DLL.Security.Cryptography
 
         /// <summary>
         /// Generates an initialization vector (IV) to use for the algorithm.
-        /// CO2(P: 0x13FA0F9D, G: 0x6D5C7962)
+        /// CO2(P: 0x0705FD1F, G: 0x1B7A313F)
         /// </summary>
         public void GenerateIV(Int32 P, Int32 G)
         {
@@ -75,8 +75,8 @@ namespace CO2_CORE_DLL.Security.Cryptography
             {
                 BufIV[i + 0] = pBufPKey[0];
                 BufIV[i + K] = pBufGKey[0];
-                pBufPKey[0] = (Byte)((pBufPKey[1] + (Byte)(pBufPKey[0] * pBufPKey[2])) * pBufPKey[0] + pBufPKey[3]);
-                pBufGKey[0] = (Byte)((pBufGKey[1] - (Byte)(pBufGKey[0] * pBufGKey[2])) * pBufGKey[0] + pBufGKey[3]);
+                pBufPKey[0] = (Byte)(((Byte)(pBufPKey[0] << pBufPKey[2]) + pBufPKey[1]) * pBufPKey[0] + pBufPKey[3]);
+                pBufGKey[0] = (Byte)((pBufGKey[0] * pBufGKey[2] - pBufGKey[1]) * pBufGKey[0] - pBufGKey[3]);
             }
         }
 
@@ -87,21 +87,12 @@ namespace CO2_CORE_DLL.Security.Cryptography
         public void GenerateKey(Int32 A, Int32 B)
         {
             Kernel.assert(BufIV != null);
- 
+
             if (BufKey != null)
                 Kernel.free(BufKey);
 
             BufKey = (Byte*)Kernel.malloc(COSAC_KEY);
             Int16 K = COSAC_KEY / 2;
-
-            //UInt32 tmp1 = 0;
-            //tmp1 = (UInt32)(A + B);
-
-            //Byte* tmpKey1 = (Byte*)&tmp1;
-            //((Int16*)tmpKey1)[0] ^= 0x4321;
-
-            //for (SByte i = 0; i < 4; i++)
-            //    tmpKey1[3 - i] ^= (Byte)(A >> (24 - (8 * i)));
 
             UInt32 tmp1 = (UInt32)(((A + B) ^ 0x4321) ^ A);
             UInt32 tmp2 = tmp1 * tmp1;
@@ -127,8 +118,6 @@ namespace CO2_CORE_DLL.Security.Cryptography
             Int16 K = COSAC_IV / 2;
             for (Int32 i = 0; i < Length; i++)
             {
-                pBuf[i] ^= (Byte)0xAB;
-                pBuf[i] = (Byte)(pBuf[i] >> 4 | pBuf[i] << 4);
                 if (BufIV != null)
                 {
                     pBuf[i] ^= (Byte)(BufIV[(Byte)(EncryptCounter & 0xFF) + 0]);
@@ -152,8 +141,6 @@ namespace CO2_CORE_DLL.Security.Cryptography
 
             for (Int32 i = 0; i < Length; i++)
             {
-                pBuf[i] ^= (Byte)0xAB;
-                pBuf[i] = (Byte)(pBuf[i] >> 4 | pBuf[i] << 4);
                 if (BufKey != null)
                 {
                     pBuf[i] ^= (Byte)(BufKey[(Byte)(DecryptCounter & 0xFF) + 0]);

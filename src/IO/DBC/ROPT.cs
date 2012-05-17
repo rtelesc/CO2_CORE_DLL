@@ -118,16 +118,13 @@ namespace CO2_CORE_DLL.IO.DBC
                 using (FileStream Stream = new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     Byte[] Buffer = new Byte[Kernel.MAX_BUFFER_SIZE];
-                    Header* pHeader = (Header*)Kernel.malloc(sizeof(Header));
+                    Header* pHeader = stackalloc Header[1];
 
                     Stream.Read(Buffer, 0, sizeof(Header));
                     Kernel.memcpy(pHeader, Buffer, sizeof(Header));
 
                     if (pHeader->Identifier != ROPT_IDENTIFIER)
-                    {
-                        Kernel.free(pHeader);
                         throw new Exception("Invalid ROPT Header in file: " + Path);
-                    }
 
                     for (Int32 i = 0; i < pHeader->PartAmount; i++)
                     {
@@ -148,7 +145,6 @@ namespace CO2_CORE_DLL.IO.DBC
                         if (!Dumies.ContainsKey(pDumy->UniqId))
                             Dumies.Add(pDumy->UniqId, (IntPtr)pDumy);
                     }
-                    Kernel.free(pHeader);
                 }
             }
         }
@@ -168,6 +164,8 @@ namespace CO2_CORE_DLL.IO.DBC
                 Int32 PartAmount = Ini.ReadInt32("Config", "Count");
                 Int32 DumyAmount = Int32.Parse(Ini.ReadValue("Dumy", "Count").TrimEnd('¡'));
 
+                Byte* pStr = stackalloc Byte[Kernel.MAX_BUFFER_SIZE];
+
                 for (Int32 i = 0; i < PartAmount; i++)
                 {
                     String Name = Ini.ReadValue("Config", "Part" + i);
@@ -175,9 +173,13 @@ namespace CO2_CORE_DLL.IO.DBC
                     String MotionIni = Ini.ReadValue("Config", "MotionIni" + i);
 
                     Part* pPart = (Part*)Kernel.calloc(sizeof(Part));
-                    Kernel.memcpy(pPart->Name, Name.ToPointer(), Math.Min(MAX_NAMESIZE - 1, Name.Length));
-                    Kernel.memcpy(pPart->MeshIni, MeshIni.ToPointer(), Math.Min(MAX_PATHSIZE - 1, MeshIni.Length));
-                    Kernel.memcpy(pPart->MotionIni, MotionIni.ToPointer(), Math.Min(MAX_PATHSIZE - 1, MotionIni.Length));
+
+                    Name.ToPointer(pStr);
+                    Kernel.memcpy(pPart->Name, pStr, Math.Min(MAX_NAMESIZE - 1, Kernel.strlen(pStr)));
+                    MeshIni.ToPointer(pStr);
+                    Kernel.memcpy(pPart->MeshIni, pStr, Math.Min(MAX_PATHSIZE - 1, Kernel.strlen(pStr)));
+                    MotionIni.ToPointer(pStr);
+                    Kernel.memcpy(pPart->MotionIni, pStr, Math.Min(MAX_PATHSIZE - 1, Kernel.strlen(pStr)));
 
                     if (!Parts.ContainsKey(Kernel.cstring(pPart->Name, MAX_NAMESIZE)))
                         Parts.Add(Kernel.cstring(pPart->Name, MAX_NAMESIZE), (IntPtr)pPart);
@@ -189,7 +191,9 @@ namespace CO2_CORE_DLL.IO.DBC
 
                     Dumy* pDumy = (Dumy*)Kernel.calloc(sizeof(Dumy));
                     pDumy->UniqId = i;
-                    Kernel.memcpy(pDumy->Name, Name.ToPointer(), Math.Min(MAX_NAMESIZE - 1, Name.Length));
+
+                    Name.ToPointer(pStr);
+                    Kernel.memcpy(pDumy->Name, pStr, Math.Min(MAX_NAMESIZE - 1, Kernel.strlen(pStr)));
 
                     if (!Dumies.ContainsKey(pDumy->UniqId))
                         Dumies.Add(pDumy->UniqId, (IntPtr)pDumy);
@@ -210,14 +214,13 @@ namespace CO2_CORE_DLL.IO.DBC
                     Byte[] Buffer = new Byte[Kernel.MAX_BUFFER_SIZE];
                     IntPtr[] Pointers = new IntPtr[0];
 
-                    Header* pHeader = (Header*)Kernel.malloc(sizeof(Header));
+                    Header* pHeader = stackalloc Header[1];
                     pHeader->Identifier = ROPT_IDENTIFIER;
                     pHeader->PartAmount = Parts.Count;
                     pHeader->DumyAmount = Dumies.Count;
 
                     Kernel.memcpy(Buffer, pHeader, sizeof(Header));
                     Stream.Write(Buffer, 0, sizeof(Header));
-                    Kernel.free(pHeader);
 
                     Pointers = new IntPtr[Parts.Count];
                     Parts.Values.CopyTo(Pointers, 0);

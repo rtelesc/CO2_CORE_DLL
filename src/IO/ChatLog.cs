@@ -64,17 +64,14 @@ namespace CO2_CORE_DLL.IO
                 throw new NullReferenceException();
 
             this.Entries = new List<IntPtr>();
-            this.pName = (Byte*)Kernel.calloc(MAX_NAMESIZE);
-            this.pServer = (Byte*)Kernel.calloc(MAX_SERVERSIZE);
+            this.pName = Name.ToPointer();
+            this.pServer = Server.ToPointer();
 
-            Kernel.memcpy(pName, Name.ToPointer(), Math.Min(MAX_NAMESIZE - 1, Name.Length));
-            Kernel.memcpy(pServer, Server.ToPointer(), Math.Min(MAX_SERVERSIZE - 1, Server.Length));
-
-            NameLength = Kernel.strlen(pName);
+            NameLength = Math.Min(Kernel.strlen(pName), MAX_NAMESIZE - 1);
             if (NameLength <= 1)
                 NameLength = 2;
 
-            ServerLength = Kernel.strlen(pServer);
+            ServerLength = Math.Min(Kernel.strlen(pServer), MAX_SERVERSIZE - 1);
         }
 
         ~ChatLog()

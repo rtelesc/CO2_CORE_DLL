@@ -638,8 +638,8 @@ namespace CO2_CORE_DLL.Security.Cryptography
             Kernel.assert(BufKey != null);
             Kernel.assert(BufKey.Length > 0);
 
-            Byte* pBufKey = BufKey.ToPointer();
-            Int32 Length = Kernel.strlen(pBufKey);
+            Byte* pBufKey = stackalloc Byte[BufKey.Length + 1];
+            Int32 Length = Kernel.strlen(BufKey.ToPointer(pBufKey));
             GenerateKey(pBufKey, Length);
         }
 
