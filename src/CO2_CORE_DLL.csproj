@@ -80,6 +80,7 @@
     <Compile Include="IO\DBC\RSDB_BIG.cs" />
     <Compile Include="IO\DBC\RSDB_SMALL.cs" />
     <Compile Include="IO\DBC\SIMO.cs" />
+    <Compile Include="IO\DNP.cs" />
     <Compile Include="IO\Ini\ItemType.cs" />
     <Compile Include="IO\NetDragonDatPkg\NetDragonDatPkg.cs" />
     <Compile Include="Kernel.cs" />
