@@ -1,4 +1,43 @@
-﻿CO2_CORE_DLL v1.0.0 (REV-14) new features and fixed bugs (from REV-13) :
+﻿CO2_CORE_DLL v1.0.0 (REV-20) new features and fixed bugs (from REV-19) :
+
+1.  Fixed and tested the MapManager.
+
+November 26th, 2012
+
+CO2_CORE_DLL v1.0.0 (REV-19) new features and fixed bugs (from REV-18) :
+
+1.  Added support for TQ Digital: DawnPack format.
+
+June 16th, 2012
+
+CO2_CORE_DLL v1.0.0 (REV-18) new features and fixed bugs (from REV-17) :
+
+1.  Add a MapManager system.
+2.  Add two extensions to the Stream class.
+
+May 20th, 2012
+
+CO2_CORE_DLL v1.0.0 (REV-17) new features and fixed bugs (from REV-16) :
+
+1.  Removed an unused class.
+
+May 17th, 2012
+
+CO2_CORE_DLL v1.0.0 (REV-16) new features and fixed bugs (from REV-15) :
+
+1.  Add methods to retreive the Key, Request and Response in the DH exchange.
+2.  Change the ToPointer() method to avoid problem.
+3.  Use the stack over the heap when possible.
+
+May 17th, 2012
+
+CO2_CORE_DLL v1.0.0 (REV-15) new features and fixed bugs (from REV-14) :
+
+1.  Small bugfixes.
+
+April 7th, 2012
+
+CO2_CORE_DLL v1.0.0 (REV-14) new features and fixed bugs (from REV-13) :
 
 1.  Update the Blowfish implementation.
 2.  Add a function to get the Key in bytes. (DiffieHellman)

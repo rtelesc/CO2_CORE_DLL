@@ -301,7 +301,7 @@ namespace CO2_CORE_DLL.IO
                                 Result = Stream.inflate(zlibConst.Z_NO_FLUSH);
 
                                 Length = Kernel.MAX_BUFFER_SIZE - Stream.avail_out;
-                                Kernel.memcpy((*pData) + Pos, Buffer, Length);
+                                Kernel.memcpy((*pData) + Pos, Tmp, Length);
                                 Pos += Length;
                             }
                             while (Stream.avail_out == 0);

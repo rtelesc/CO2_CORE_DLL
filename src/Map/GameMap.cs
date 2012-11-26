@@ -84,16 +84,20 @@ namespace CO2_CORE_DLL.Map
 
                 Stream.Read(&Version, sizeof(UInt32));
                 Stream.Read(&Data, sizeof(UInt32));
+                //Console.WriteLine("Version: {0} Data: {1}", Version, Data);
 
                 Byte* pFileName = stackalloc Byte[MAX_PATH];
                 Stream.Read(pFileName, MAX_PATH);
 
                 String FullFileName = Folder + new String((SByte*)pFileName);
                 //LoadPuzzle(FullFileName);
+                //Console.WriteLine("Puzzle: {0} [{1}]", FullFileName, MAX_PATH);
 
                 fixed (MySize* pMapSize = &MapSize)
                     Stream.Read(pMapSize, sizeof(MySize));
+                //Console.WriteLine("Width = {0}, Height = {1}", MapSize.Width, MapSize.Height);
 
+                Cells = new Cell[MapSize.Width, MapSize.Height];
                 for (Int32 i = 0; i < MapSize.Height; i++)
                 {
                     UInt32 CheckData = 0;
@@ -107,6 +111,7 @@ namespace CO2_CORE_DLL.Map
                         CheckData += (UInt32)((Layer.Mask * (Layer.Terrain + i + 1)) +
                                               ((Layer.Altitude + 2) * (j + 1 + Layer.Terrain)));
 
+                        //Console.WriteLine("Cell({0}, {1}) MASK[{2}] TERRAIN[{3}] ALTITUDE[{4}]", j, i, Layer.Mask, Layer.Terrain, Layer.Altitude);
                         Cells[j, i] = new Cell(Layer);
                     }
                     UInt32 MapCheckData;
@@ -139,6 +144,7 @@ namespace CO2_CORE_DLL.Map
                 PassageInfo Passage;
                 Stream.Read(&Passage, sizeof(PassageInfo));
 
+                //Console.WriteLine("Passage[{0}] ({1}, {2}", Passage.Index, Passage.PosX, Passage.PosY);
                 Passages.Add(Passage.Index, Passage);
             }
         }
