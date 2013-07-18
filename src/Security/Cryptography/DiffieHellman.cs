@@ -37,7 +37,7 @@ namespace CO2_CORE_DLL.Security.Cryptography
 
         public BigInteger GetKey() { return s; }
         public BigInteger GetRequest() { return A; }
-        public BigInteger GetResponse() { return A; }
+        public BigInteger GetResponse() { return B; }
 
         public String Key { get { return s.ToHexString(); } }
 

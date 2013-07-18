@@ -214,10 +214,7 @@ namespace CO2_CORE_DLL.Security.Cryptography
             EncryptNum = 0;
             DecryptNum = 0;
 
-            if (Length > BLOWFISH_KEY_SIZE)
-                Length = BLOWFISH_KEY_SIZE;
-
-            Byte* pBufKey = stackalloc Byte[BLOWFISH_KEY_SIZE];
+            Byte* pBufKey = (Byte*)Kernel.malloc(BLOWFISH_KEY_SIZE);
             Kernel.memset(pBufKey, 0, BLOWFISH_KEY_SIZE);
             Kernel.memcpy(pBufKey, pKey, Length);
 
@@ -260,6 +257,9 @@ namespace CO2_CORE_DLL.Security.Cryptography
                     S[j][k++] = ((UInt32*)pBlock)[1];
                 }
             }
+
+            if (pBufKey != null)
+                Kernel.free(pBufKey);
         }
 
         /// <summary>
