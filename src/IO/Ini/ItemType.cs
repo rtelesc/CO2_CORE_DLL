@@ -1,4 +1,4 @@
-﻿// * ************************************************************
+// * ************************************************************
 // * * START:                                       itemtype.cs *
 // * ************************************************************
 
@@ -173,6 +173,7 @@ namespace CO2_CORE_DLL.IO
                 using (StreamReader Stream = new StreamReader(Path, Encoding.GetEncoding("Windows-1252")))
                 {
                     Entries = new Dictionary<Int32, IntPtr>();
+                    Byte* pStr = stackalloc Byte[Kernel.MAX_BUFFER_SIZE];
 
                     String Line = null;
                     Int32 LineC = 0;
@@ -190,8 +191,6 @@ namespace CO2_CORE_DLL.IO
 
                         try
                         {
-                            Byte* pStr = stackalloc Byte[Kernel.MAX_BUFFER_SIZE];
-
                             pEntry->ID = Int32.Parse(Parts[0]);
 
                             Parts[1].ToPointer(pStr);
