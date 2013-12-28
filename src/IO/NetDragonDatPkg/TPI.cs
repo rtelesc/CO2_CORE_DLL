@@ -1,4 +1,4 @@
-﻿// * ************************************************************
+// * ************************************************************
 // * * START:                                            tpi.cs *
 // * ************************************************************
 
@@ -234,7 +234,7 @@ namespace CO2_CORE_DLL.IO
                                 Result = Stream.inflate(zlibConst.Z_NO_FLUSH);
 
                                 Length = Kernel.MAX_BUFFER_SIZE - Stream.avail_out;
-                                Array.Copy(Buffer, 0, Data, Pos, Length);
+                                Array.Copy(Tmp, 0, Data, Pos, Length);
                                 Pos += Length;
                             }
                             while (Stream.avail_out == 0);

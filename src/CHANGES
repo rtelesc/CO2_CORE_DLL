@@ -1,4 +1,38 @@
-﻿CO2_CORE_DLL v1.0.0 (REV-20) new features and fixed bugs (from REV-19) :
+CO2_CORE_DLL v1.0.0 (REV-25) new features and fixed bugs (from REV-24) :
+
+1.  Fixed the wrong decompression of TPI/TPD entries.
+
+December 28th, 2013
+
+CO2_CORE_DLL v1.0.0 (REV-24) new features and fixed bugs (from REV-23) :
+
+1.  Fixed the buffer overflow when loading an ItemType from text. 
+
+September 7th, 2013
+
+CO2_CORE_DLL v1.0.0 (REV-23) new features and fixed bugs (from REV-22) :
+
+1.  Updated the DLLs and the version info. 
+
+August 17th, 2013
+
+CO2_CORE_DLL v1.0.0 (REV-22) new features and fixed bugs (from REV-21) :
+
+1.  Fixed a problem with truncated Blowfish seeds.
+2.  Fixed a problem with DiffieHellman GetResponse returning the request.
+
+-- Haydz
+
+July 18th, 2013
+
+CO2_CORE_DLL v1.0.0 (REV-21) new features and fixed bugs (from REV-20) :
+
+1.  Added the AnyCPU configuration to the project.
+2.  Fixed the EOL issue.
+
+March 23th, 2013
+
+CO2_CORE_DLL v1.0.0 (REV-20) new features and fixed bugs (from REV-19) :
 
 1.  Fixed and tested the MapManager.
 
